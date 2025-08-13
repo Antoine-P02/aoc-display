@@ -1,13 +1,14 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import HeaderInfos from './components/HeaderInfos.vue'
-import Tab from './components/Tab.vue'
+import Completion from './components/Completion.vue'
+import Feed from './components/Feed.vue'
 
 const loading = ref(true)
 const error = ref(null)
 const member = ref({})
-const days = Array.from({ length: 25 }, (_, i) => (i + 1))
-const tab = ref('days')
+const days = Array.from({ length: 25 }, (_, i) => i + 1)
+const mode = ref('progress')
 
 const feed = computed(() => {
   if (!member.value.completion_day_level) return []
@@ -32,11 +33,11 @@ onMounted(async () => {
   try {
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     const apiUrl = isLocalhost ? 'http://localhost:3001/aoc-user' : '/api/aoc-user'
-    
+
     const response = await fetch(apiUrl)
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     const data = await response.json()
-    console.log("debug", data);
+    console.log('debug', data)
     // Only show the current user
     const id = data.owner_id
     member.value = data.members[id]
@@ -49,15 +50,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <HeaderInfos 
-    :member="member" 
-    :loading="loading" 
-    :error="error" 
-    :tab="''"
-  />
-  <Tab
-    :days="days"
-    :tab="tab"
-    :member="member"
-  />
+  <div class="bg-gray-900 w-full h-full p-10">
+    <HeaderInfos :member="member" :loading="loading" :error="error" :mode="mode" @update:mode="mode = $event" />
+    <div v-if="mode === 'feed'">
+      <Feed :feed="feed" />
+    </div>
+    <div v-else>
+      <Completion :days="days" :mode="mode" :member="member" />
+    </div>
+  </div>
 </template>
