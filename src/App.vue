@@ -30,7 +30,10 @@ onMounted(async () => {
   loading.value = true
   error.value = null
   try {
-    const response = await fetch('http://localhost:3001/aoc-user')
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    const apiUrl = isLocalhost ? 'http://localhost:3001/aoc-user' : '/api/aoc-user'
+    
+    const response = await fetch(apiUrl)
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     const data = await response.json()
     console.log("debug", data);
