@@ -8,8 +8,17 @@ module.exports = (req, res) => {
   const SESSION = process.env.VITE_SESSION
   const LEADERBOARD = process.env.VITE_LEADERBOARD
 
+  console.log('Environment variables:', { 
+    SESSION: SESSION ? 'SET' : 'NOT SET', 
+    LEADERBOARD: LEADERBOARD ? 'SET' : 'NOT SET' 
+  })
+
   if (!SESSION || !LEADERBOARD) {
-    return res.status(500).json({ error: 'SESSION or LEADERBOARD token not found in environment variables' })
+    return res.status(500).json({ 
+      error: 'SESSION or LEADERBOARD token not found in environment variables',
+      sessionExists: !!SESSION,
+      leaderboardExists: !!LEADERBOARD
+    })
   }
 
   const leaderboardId = LEADERBOARD.split('-')[0]
@@ -26,6 +35,7 @@ module.exports = (req, res) => {
     let data = ''
     aocRes.on('data', chunk => { data += chunk })
     aocRes.on('end', () => {
+      console.log('AOC response status:', aocRes.statusCode)
       if (aocRes.statusCode === 200) {
         res.setHeader('Content-Type', 'application/json')
         res.setHeader('Access-Control-Allow-Origin', '*')
@@ -33,10 +43,16 @@ module.exports = (req, res) => {
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
         res.status(200).send(data)
       } else {
-        res.status(aocRes.statusCode).send(data)
+        console.log('AOC error response:', data)
+        res.status(aocRes.statusCode).json({ 
+          error: 'AOC API error', 
+          status: aocRes.statusCode, 
+          data: data 
+        })
       }
     })
   }).on('error', (err) => {
+    console.log('HTTPS request error:', err.message)
     res.status(500).json({ error: err.message })
   })
 }
