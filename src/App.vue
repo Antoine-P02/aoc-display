@@ -1,18 +1,60 @@
 <script setup>
-import AocLeaderboard from './components/AocLeaderboard.vue'
+import { ref, onMounted, computed } from 'vue'
+import HeaderInfos from './components/HeaderInfos.vue'
+import Tab from './components/Tab.vue'
+
+const loading = ref(true)
+const error = ref(null)
+const member = ref({})
+const days = Array.from({ length: 25 }, (_, i) => (i + 1))
+const tab = ref('days')
+
+const feed = computed(() => {
+  if (!member.value.completion_day_level) return []
+  const items = []
+  for (const day in member.value.completion_day_level) {
+    for (const part in member.value.completion_day_level[day]) {
+      const info = member.value.completion_day_level[day][part]
+      items.push({
+        day,
+        part,
+        get_star_ts: info.get_star_ts,
+        star_index: info.star_index
+      })
+    }
+  }
+  return items.sort((a, b) => b.get_star_ts - a.get_star_ts)
+})
+
+onMounted(async () => {
+  loading.value = true
+  error.value = null
+  try {
+    const response = await fetch('http://localhost:3001/aoc-user')
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const data = await response.json()
+    console.log("debug", data);
+    // Only show the current user
+    const id = data.owner_id
+    member.value = data.members[id]
+  } catch (e) {
+    error.value = e.message
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
-<template>  
-  <div class="bg-gray-900 w-full h-full">
-    <header class="flex flex-grid justify-center gap-10 p-4 ">
-
-      <img src="/vite.svg" class="h-32 w-32 transition-all hover:drop-shadow-[0_0_2em_#646cffaa]" alt="Vite logo" />
-        
-      <div class="mt-20">
-        <AocLeaderboard />
-      </div>
-        
-      <img src="./assets/vue.svg" class="h-32 w-32 transition-all hover:drop-shadow-[0_0_2em_#42b883aa]" alt="Vue logo" />
-    </header>
-  </div>
+<template>
+  <HeaderInfos 
+    :member="member" 
+    :loading="loading" 
+    :error="error" 
+    :tab="''"
+  />
+  <Tab
+    :days="days"
+    :tab="tab"
+    :member="member"
+  />
 </template>
