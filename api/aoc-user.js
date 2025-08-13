@@ -1,6 +1,6 @@
-const https = require('https')
+import https from 'https'
 
-module.exports = (req, res) => {
+export default function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
