@@ -1,9 +1,9 @@
 // database.js
-import fs from 'fs';
+import dotenv from 'dotenv';
+dotenv.config();
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
-const envContent = fs.readFileSync('../.env', 'utf8');
-const db_password = envContent.match(/^VITE_DB_PASSWORD\s*=\s*(.*)$/m)[1].trim();
+const db_password = process.env.VITE_DB_PASSWORD;
 const uri = `mongodb+srv://dbP02:${db_password}@clusterp02.arl21aq.mongodb.net/?retryWrites=true&w=majority&appName=ClusterP02`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -41,17 +41,17 @@ export async function getDb() {
     return planets;
 }
 
-export async function getMessages(amount){
-    if (client.topology?.isConnected() !== true) {
-        await client.connect();
-    }
+// export async function getMessages(amount){
+//     if (client.topology?.isConnected() !== true) {
+//         await client.connect();
+//     }
 
-    const db = client.db("aoc");
-    const collection = db.collection("messages");
-    const messages = await collection.find({}).limit(amount).toArray();
-    console.log("Retrieved messages:", messages);
-    return messages;
-}
+//     const db = client.db("aoc");
+//     const collection = db.collection("messages");
+//     const messages = await collection.find({}).limit(amount).toArray();
+//     console.log("Retrieved messages:", messages);
+//     return messages;
+// }
 
 export async function sendMessage(message) {
 

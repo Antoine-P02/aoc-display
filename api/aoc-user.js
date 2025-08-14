@@ -21,7 +21,7 @@ export default function handler(req, res) {
     })
   }
 
-  const leaderboardId = LEADERBOARD.split('-')[0]
+  const leaderboardId = LEADERBOARD
   const options = {
     hostname: 'adventofcode.com',
     path: `/2024/leaderboard/private/view/${leaderboardId}.json`,
