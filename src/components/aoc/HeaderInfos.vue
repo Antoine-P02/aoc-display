@@ -5,6 +5,26 @@ const props = defineProps({
   error: String,
   mode: String
 })
+
+async function runShit(){
+  console.log("test launch");
+  await fetch('/api/db');
+  console.log("test end");
+}
+
+async function getDb(){
+  console.log("test get db");
+  const response = await fetch('/api/get-db');
+  const data = await response.json();
+  console.log("test end", data);
+}
+
+async function closeDb(){
+  console.log("test close");
+  await fetch('/api/close-db');
+  console.log("test end");
+}
+
 const emit = defineEmits(['update:mode'])
 </script>
 
@@ -20,6 +40,25 @@ const emit = defineEmits(['update:mode'])
             <div class="flex flex-row items-center gap-2">
               <span class="text-base text-gray-400">Username:</span>
               <span class="text-xl font-bold">{{ member.name }}</span>
+            </div>
+            <div class="flex items-center justify-center gap-4">
+              <button 
+                class="px-4 py-2.5 rounded-lg font-semibold transition-all bg-red-600 text-white hover:bg-blue-500 shadow-md"
+                @click="runShit">
+                Run
+              </button>
+              
+              <button 
+                class="px-4 py-2.5 rounded-lg font-semibold transition-all bg-red-600 text-white hover:bg-blue-500 shadow-md"
+                @click="getDb">
+                Get DB
+              </button>
+
+              <button 
+                class="px-4 py-2.5 rounded-lg font-semibold transition-all bg-red-600 text-white hover:bg-blue-500 shadow-md"
+                @click="closeDb">
+                Close
+              </button>
             </div>
           </div>
           <div class="flex justify-end items-center gap-2">

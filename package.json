@@ -11,6 +11,9 @@
     "vercel-build": "vite build"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "mongodb": "^6.18.0",
     "tailwindcss": "^4.1.11",
     "vue": "^3.5.18"
   },

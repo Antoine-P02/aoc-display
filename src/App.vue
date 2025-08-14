@@ -1,8 +1,9 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import HeaderInfos from './components/HeaderInfos.vue'
-import Completion from './components/Completion.vue'
-import Feed from './components/Feed.vue'
+import HeaderInfos from './components/aoc/HeaderInfos.vue'
+import Completion from './components/aoc/Completion.vue'
+import Feed from './components/aoc/Feed.vue'
+import DebugChat from './components/chats/DebugChat.vue'
 
 const loading = ref(true)
 const error = ref(null)
@@ -32,7 +33,7 @@ onMounted(async () => {
   error.value = null
   try {
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    const apiUrl = isLocalhost ? 'http://localhost:3001/aoc-user' : '/api/aoc-user'
+    const apiUrl = isLocalhost ? 'http://localhost:3001/api/aoc-user' : '/api/aoc-user'
 
     const response = await fetch(apiUrl)
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
@@ -58,5 +59,6 @@ onMounted(async () => {
     <div v-else>
       <Completion :days="days" :mode="mode" :member="member" />
     </div>
+    <DebugChat />
   </div>
 </template>
