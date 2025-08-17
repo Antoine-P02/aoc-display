@@ -41,7 +41,7 @@ const emit = defineEmits(['update:mode'])
               <span class="text-base text-gray-400">Username:</span>
               <span class="text-xl font-bold">{{ member.name }}</span>
             </div>
-            <div class="flex items-center justify-center gap-4">
+            <!-- <div class="flex items-center justify-center gap-4">
               <button 
                 class="px-4 py-2.5 rounded-lg font-semibold transition-all bg-red-600 text-white hover:bg-blue-500 shadow-md"
                 @click="runShit">
@@ -59,7 +59,7 @@ const emit = defineEmits(['update:mode'])
                 @click="closeDb">
                 Close
               </button>
-            </div>
+            </div> -->
           </div>
           <div class="flex justify-end items-center gap-2">
             <span class="font-semibold text-white">Problems Solved</span>
