@@ -4,6 +4,7 @@ import Feed from './Feed.vue'
 import Completion from './Completion.vue'
 
 import { ref, onMounted, computed } from 'vue'
+import DebugChat from '../chats/DebugChat.vue'
 
 const base_url = import.meta.env.VITE_BASE_URL
 
@@ -66,7 +67,10 @@ const feed = computed(() => {
     <div v-if="mode === 'feed'">
       <Feed :feed="feed" />
     </div>
-    <div v-else>
+    <div v-else-if="mode === 'progress'">
       <Completion :days="days" :mode="mode" :member="member" />
+    </div>
+    <div v-else>
+      <DebugChat :member="member" />
     </div>
 </template>

@@ -26,9 +26,9 @@ function formatDate(ts) {
 </script>
 
 <template>
-    <div class="h-fit w-80 bg-blue-300 m-4 rounded-3xl p-4" :class="{
-    'rounded-br-none ml-auto': isCurrentUser,
-    'rounded-bl-none mr-auto': !isCurrentUser
+    <div class="h-fit w-80 m-4 rounded-3xl p-4" :class="{
+    'rounded-br-none ml-auto bg-blue-400 ': isCurrentUser,
+    'rounded-bl-none mr-auto bg-blue-200 ': !isCurrentUser
   }">
     <span class="flex justify-end text-xs">
             {{ formatDate(message.timestamp) }}

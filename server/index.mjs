@@ -55,6 +55,30 @@ app.get('/api/getMessages', async (req, res) => {
 	}
 });
 
+app.get('/api/getLastMessages', async (req, res) => {
+	const limit = parseInt(req.query.limit);
+	console.log("hello from Local", req.query.limit);
+	console.log("Fetching messages with limit:", limit);
+	console.log("Client not connected, connecting...", client.topology?.isConnected());
+	try {
+		const limit = parseInt(req.query?.limit ?? '100', 10) || 100
+		if (client.topology?.isConnected() !== true) {
+			await client.connect();
+		}
+
+		const db = client.db("aoc");
+		const collection = db.collection("messages");
+		const messages = await collection.find({}, { projection: { _id: 0, value: 1, timestamp: 1, ip: 1 } }).sort({ _id: -1 }).limit(limit).toArray();
+
+		res.json({
+			messages: messages.reverse(),
+			ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress
+		});
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+
 app.post('/api/sendMessage', async (req, res) => {
 	const { message } = req.body || {}
 	if (!message) return res.status(400).json({ error: 'Missing message' })

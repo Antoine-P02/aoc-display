@@ -9,9 +9,9 @@ export default async function handler(req, res) {
 
         const db = client.db("aoc");
         const collection = db.collection("messages");
-        const messages = await collection.find({}, { projection: { _id: 0, value: 1, timestamp: 1, ip: 1 } }).limit(limit).toArray();
+        const messages = await collection.find({}, { projection: { _id: 0, value: 1, timestamp: 1, ip: 1 } }).sort({ _id: -1 }).limit(limit).toArray();
         const responseItem = {
-            messages: messages,
+            messages: messages.reverse(),
             ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
         }
             

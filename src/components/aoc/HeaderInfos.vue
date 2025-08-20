@@ -73,6 +73,7 @@ const emit = defineEmits(['update:mode'])
       <div class="flex gap-2 mt-4 mb-10">
         <button :class="['px-4 py-2.5 rounded-lg font-semibold transition-all whitespace-nowrap', props.mode === 'progress' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="emit('update:mode', 'progress')">Complete Progress</button>
         <button :class="['px-4 py-2.5 rounded-lg font-semibold transition-all whitespace-nowrap', props.mode === 'feed' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="emit('update:mode', 'feed')">Daily Feed</button>
+        <button :class="['px-4 py-2.5 rounded-lg font-semibold transition-all whitespace-nowrap', props.mode === 'chat' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="emit('update:mode', 'chat')">Chat</button>
       </div>
     </div>
 
