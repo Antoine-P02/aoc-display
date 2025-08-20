@@ -4,7 +4,7 @@ import Feed from './Feed.vue'
 import Completion from './Completion.vue'
 
 import { ref, onMounted, computed } from 'vue'
-import DebugChat from '../chats/DebugChat.vue'
+import ChatPage from '../chats/ChatPage.vue'
 
 const base_url = import.meta.env.VITE_BASE_URL
 
@@ -71,6 +71,6 @@ const feed = computed(() => {
       <Completion :days="days" :mode="mode" :member="member" />
     </div>
     <div v-else>
-      <DebugChat :member="member" />
+      <ChatPage :member="member" />
     </div>
 </template>

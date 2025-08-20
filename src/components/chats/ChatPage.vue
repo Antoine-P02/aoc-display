@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import TextMessage from './TextMessage.vue';
+import AuthPage from './AuthPage.vue';
+
 const messageList = ref([])
 const newMessage = ref('');
 const ip = ref('0.0');
@@ -21,9 +23,7 @@ async function sendMessage(message) {
 async function getLastMessages(n){
     const data = await fetch(`${base_url}/api/getLastMessages?limit=${n}`)
     const text = await data.text()
-    console.log("Retrieved messages:", text);
     const jsonData = JSON.parse(text);
-    console.log("Parsed JSON data:", jsonData);
     messageList.value = jsonData.messages;
     ip.value = jsonData.ip;
 }
@@ -40,12 +40,13 @@ onMounted(() => {
     getLastMessages(10);
 });
 
+const isLoggedIn = ref(false);
 
 </script>
 
 
 <template>
-    <div class=" w-full h-400">
+    <div v-if="isLoggedIn" class=" w-full">
         <button @click="getLastMessages(10)" class="px-4 py-2 bg-blue-500 text-white rounded">
             <i class="fas fa-sync" />
         </button>
@@ -63,5 +64,8 @@ onMounted(() => {
         }" 
         placeholder="Type your message..." 
         class="border rounded-md p-3  w-2/3 mx-auto block bg-green-100" />
+    </div>
+    <div v-else>
+        <AuthPage />
     </div>
 </template>
