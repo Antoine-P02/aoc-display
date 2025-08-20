@@ -1,9 +1,15 @@
 // database.js
-import fs from 'fs';
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
-const envContent = fs.readFileSync('../.env', 'utf8');
-const db_password = envContent.match(/^VITE_DB_PASSWORD\s*=\s*(.*)$/m)[1].trim();
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+const db_password = process.env.VITE_DB_PASSWORD;
 const uri = `mongodb+srv://dbP02:${db_password}@clusterp02.arl21aq.mongodb.net/?retryWrites=true&w=majority&appName=ClusterP02`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -14,6 +20,7 @@ const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
+console.log("MongoDB client created with URI:", uri);
 
 export async function run() {
     try {

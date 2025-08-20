@@ -1,64 +1,17 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import HeaderInfos from './components/aoc/HeaderInfos.vue'
-import Completion from './components/aoc/Completion.vue'
-import Feed from './components/aoc/Feed.vue'
-import DebugChat from './components/chats/DebugChat.vue'
-
-const loading = ref(true)
-const error = ref(null)
-const member = ref({})
-const days = Array.from({ length: 25 }, (_, i) => i + 1)
-const mode = ref('progress')
-
-const feed = computed(() => {
-  if (!member.value.completion_day_level) return []
-  const items = []
-  for (const day in member.value.completion_day_level) {
-    for (const part in member.value.completion_day_level[day]) {
-      const info = member.value.completion_day_level[day][part]
-      items.push({
-        day,
-        part,
-        get_star_ts: info.get_star_ts,
-        star_index: info.star_index
-      })
-    }
-  }
-  return items.sort((a, b) => b.get_star_ts - a.get_star_ts)
-})
-
-onMounted(async () => {
-  loading.value = true
-  error.value = null
-  try {
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    const apiUrl = isLocalhost ? 'http://localhost:3001/api/aoc-user' : '/api/aoc-user'
-
-    const response = await fetch(apiUrl)
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = await response.json()
-    console.log('debug', data)
-    // Only show the current user
-    const id = data.owner_id
-    member.value = data.members[id]
-  } catch (e) {
-    error.value = e.message
-  } finally {
-    loading.value = false
-  }
-})
 </script>
 
 <template>
-  <div class="bg-gray-900 w-full h-full p-10">
-    <HeaderInfos :member="member" :loading="loading" :error="error" :mode="mode" @update:mode="mode = $event" />
-    <div v-if="mode === 'feed'">
-      <Feed :feed="feed" />
-    </div>
-    <div v-else>
-      <Completion :days="days" :mode="mode" :member="member" />
-    </div>
-    <DebugChat />
+  <div class="bg-gray-900 text-white w-full h-full p-10">
+    <!-- <p><strong>Current route path:</strong> {{ $route.fullPath }}</p>
+    <nav class="flex space-x-4">
+      <RouterLink to="/">Home</RouterLink>
+      <RouterLink to="/aoc">aoc</RouterLink>
+      <RouterLink to="/chats">chats</RouterLink>
+    </nav> -->
+    <main>
+      <RouterView />
+    </main>
+    
   </div>
 </template>
