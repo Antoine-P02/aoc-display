@@ -1,29 +1,19 @@
-import { client } from "./functions.mjs";
+import { registerUser } from "./functions.mjs";
 
 export default async function handler(req, res) {
-    const userName = req.query.username;
-    const password = req.query.password;
+    const userName = req.body.username;
+    const password = req.body.password;
+    console.log('api/registerUser', userName, password, req, req.body, req.query);
     try {
-        
-        if (client.topology?.isConnected() !== true) {
-            await client.connect();
+
+        const res = await registerUser(userName, password);
+        if (!res) {
+            return res.status(400).json({ error: "User registration failed" });
         }
 
-        const user = {
-            username: userName,
-            password: hashPassword(password)
-        }
-
-        const db = client.db("aoc");
-        const collection = db.collection("users");
-        await collection.insertOne(user);
-        res.status(201).json({ user });
+        res.status(201).json({ user: res });
     } catch (err) {
         console.error('api/registerUser error:', err);
         res.status(500).json({ error: err.message || 'Internal error' });
     }
-}
-
-function hashPassword(password) {
-    return crypto.createHash('sha256').update(password).digest('hex');
 }

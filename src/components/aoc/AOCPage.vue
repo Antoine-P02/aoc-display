@@ -14,8 +14,6 @@ const member = ref({})
 const days = Array.from({ length: 25 }, (_, i) => i + 1)
 const mode = ref('progress')
 
-
-
 onMounted(async () => {
   loading.value = true
   error.value = null
@@ -37,10 +35,10 @@ onMounted(async () => {
 })
 
 const props = defineProps({
-    member: Object,
-    loading: Boolean,
-    error: String,
-    mode: String
+  member: Object,
+  loading: Boolean,
+  error: String,
+  mode: String
 })
 
 const feed = computed(() => {
@@ -59,18 +57,17 @@ const feed = computed(() => {
   }
   return items.sort((a, b) => b.get_star_ts - a.get_star_ts)
 })
-
 </script>
 
 <template>
-    <HeaderInfos :member="member" :loading="loading" :error="error" :mode="mode" @update:mode="mode = $event" />
-    <div v-if="mode === 'feed'">
-      <Feed :feed="feed" />
-    </div>
-    <div v-else-if="mode === 'progress'">
-      <Completion :days="days" :mode="mode" :member="member" />
-    </div>
-    <div v-else>
-      <ChatPage :member="member" />
-    </div>
+  <HeaderInfos :member="member" :loading="loading" :error="error" :mode="mode" @update:mode="mode = $event" />
+  <div v-if="mode === 'feed'">
+    <Feed :feed="feed" />
+  </div>
+  <div v-else-if="mode === 'progress'">
+    <Completion :days="days" :mode="mode" :member="member" />
+  </div>
+  <div v-else>
+    <ChatPage :member="member" />
+  </div>
 </template>

@@ -8,23 +8,23 @@ const props = defineProps({
 
 const base_url = import.meta.env.VITE_BASE_URL
 
-async function runShit(){
-  console.log("test launch");
-  await fetch(`${base_url}/api/db`);
-  console.log("test end");
+async function runShit() {
+  console.log('test launch')
+  await fetch(`${base_url}/api/db`)
+  console.log('test end')
 }
 
-async function getDb(){
-  console.log("test get db");
-  const response = await fetch(`${base_url}/api/get-db`);
-  const data = await response.json();
-  console.log("test end", data);
+async function getDb() {
+  console.log('test get db')
+  const response = await fetch(`${base_url}/api/get-db`)
+  const data = await response.json()
+  console.log('test end', data)
 }
 
-async function closeDb(){
-  console.log("test close");
-  await fetch(`${base_url}/api/close-db`);
-  console.log("test end");
+async function closeDb() {
+  console.log('test close')
+  await fetch(`${base_url}/api/close-db`)
+  console.log('test end')
 }
 
 const emit = defineEmits(['update:mode'])

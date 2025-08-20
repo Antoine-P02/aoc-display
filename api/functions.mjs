@@ -53,3 +53,48 @@ export async function closeConnection() {
         console.error("Error closing MongoDB connection:", error);
     }
 }
+
+
+export async function authCheck(userName, password) {
+    if (client.topology?.isConnected() !== true) {
+        await client.connect();
+    }
+    const db = client.db("aoc");
+    const collection = db.collection("users");
+    const user = await collection.findOne({ username: userName });
+    if (!user) {
+        return false;
+    }
+    if (user.password !== password) {
+        //if (user.password !== hashPassword(password)) {
+        return false;
+    }
+    return user;
+}
+
+export async function registerUser(userName, password) {
+    if (client.topology?.isConnected() !== true) {
+        await client.connect();
+    }
+
+    const loginCheck = await authCheck(userName, password);
+    console.log('registerUser loginCheck:', loginCheck);
+    if (loginCheck == false) {
+        return false;
+    }
+
+    const user = {
+        username: userName,
+        //password: hashPassword(password)
+        password: password
+    };
+
+    const db = client.db("aoc");
+    const collection = db.collection("users");
+    await collection.insertOne(user);
+    return user;
+}
+
+function hashPassword(password) {
+    return crypto.createHash('sha256').update(password).digest('hex');
+}
