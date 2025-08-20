@@ -1,7 +1,9 @@
 <script setup>
 import { onMounted, ref } from 'vue';
+import TextMessage from './TextMessage.vue';
 const messageList = ref([])
 const newMessage = ref('');
+const ip = ref('0.0');
 
 const base_url = import.meta.env.VITE_BASE_URL
 
@@ -12,7 +14,7 @@ async function sendMessage(message) {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ message })
     })
-    getLastMessages(59);
+    messageList.value.push({ value: message, timestamp: new Date(), ip: '0.0' })
 }
 
 async function getLastMessages(n){
@@ -21,7 +23,9 @@ async function getLastMessages(n){
     console.log("Retrieved messages:", text);
     const jsonData = JSON.parse(text);
     console.log("Parsed JSON data:", jsonData);
-    messageList.value = jsonData.messages;
+    const { messages, ipStack } = jsonData.responseItem;
+    messageList.value = messages;
+    ip.value = ipStack;
 }
 
 onMounted(() => {
@@ -33,11 +37,12 @@ onMounted(() => {
 
 
 <template>
-    <div class=" w-full h-400 bg-red-400">
-        <button @click="getLastMessages(59)" class="px-4 py-2 bg-blue-500 text-white rounded">Get Last Messages</button>
-        <ul>
-            <li v-for="message in messageList" :key="message.id">{{ message.value }}</li>
-        </ul>
+    <div class=" w-full h-400 bg-red-100">
+        <button @click="getLastMessages(59)" class="px-4 py-2 bg-blue-500 text-white rounded">Refresh</button>
+        <div class="flex flex-col w-full bg-green-100">
+            <TextMessage  v-for="message in messageList" :class="bg-green-100" :key="message.id" :message="message" :isCurrentUser="message.ip === ip" />
+        </div>
+
         <input 
         v-model="newMessage" 
         @keyup.enter="{

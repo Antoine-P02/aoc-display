@@ -9,8 +9,6 @@ export default async function handler(req, res) {
             await client.connect();
         }
 
-
-        const timestamp = Date.now();
         const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
         console.log("ip ?", req.headers['x-forwarded-for'], req.socket.remoteAddress);
 
@@ -19,8 +17,9 @@ export default async function handler(req, res) {
         try {
             const result = await collection.insertOne(
                 {
-                    value: `${message} - ${timestamp} - ${ip}`,
+                    value: message,
                     timestamp: new Date(),
+                    ip: ip
                 });
             console.log("Message sent:", result);
             res.status(200).json({ success: true })

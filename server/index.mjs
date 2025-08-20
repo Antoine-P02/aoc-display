@@ -40,16 +40,16 @@ app.get('/api/getMessages', async (req, res) => {
 		if (client.topology?.isConnected() !== true) {
 			await client.connect();
 		}
-		else {
-			console.log("we hgood");
-		}
 
 		const db = client.db("aoc");
 		const collection = db.collection("messages");
-		const messages = await collection.find({}).limit(limit).toArray();
-		console.log("Retrieved messages:", messages);
-				
-		res.json({ success: true, messages });
+		const messages = await collection.find({}, { projection: { _id: 0, value: 1, timestamp: 1, ip: 1 } }).limit(limit).toArray();
+		const responseItem = {
+			messages: messages,
+			ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+		}
+
+		res.json({ success: true, responseItem });
 	} catch (err) {
 		res.status(500).json({ success: false, error: err.message });
 	}
@@ -63,18 +63,16 @@ app.post('/api/sendMessage', async (req, res) => {
 		await client.connect();
 	}
 
-
-	const timestamp = Date.now();
 	const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-	console.log("ip ?", req.headers['x-forwarded-for'], req.socket.remoteAddress);
 
 	const db = client.db("aoc");
 	const collection = db.collection("messages");
 	try {
 		const result = await collection.insertOne(
 			{
-				value: `${message} - ${timestamp} - ${ip}`,
+				value: message,
 				timestamp: new Date(),
+				ip: ip
 			});
 		console.log("Message sent:", result);
 		res.status(200).json({ success: true })
