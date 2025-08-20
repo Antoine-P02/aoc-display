@@ -14,7 +14,7 @@ async function sendMessage(message) {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ message })
     })
-    messageList.value.push({ value: message, timestamp: new Date(), ip: '0.0' })
+    messageList.value.push({ value: message, timestamp: new Date(), ip: ip.value });
 }
 
 async function getLastMessages(n){
@@ -23,9 +23,10 @@ async function getLastMessages(n){
     console.log("Retrieved messages:", text);
     const jsonData = JSON.parse(text);
     console.log("Parsed JSON data:", jsonData);
-    const { messages, ipStack } = jsonData.responseItem;
-    messageList.value = messages;
-    ip.value = ipStack;
+    messageList.value = jsonData.messages;
+    ip.value = jsonData.ip;
+    console.log("IP Stack:", jsonData.ip);
+    console.log("Message List:", jsonData.messages);
 }
 
 onMounted(() => {
@@ -40,7 +41,7 @@ onMounted(() => {
     <div class=" w-full h-400 bg-red-100">
         <button @click="getLastMessages(59)" class="px-4 py-2 bg-blue-500 text-white rounded">Refresh</button>
         <div class="flex flex-col w-full bg-green-100">
-            <TextMessage  v-for="message in messageList" :class="bg-green-100" :key="message.id" :message="message" :isCurrentUser="message.ip === ip" />
+            <TextMessage  v-for="message in messageList" :key="message.id" :message="message" :isCurrentUser="message.ip === ip" />
         </div>
 
         <input 

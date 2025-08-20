@@ -45,11 +45,11 @@ app.get('/api/getMessages', async (req, res) => {
 		const collection = db.collection("messages");
 		const messages = await collection.find({}, { projection: { _id: 0, value: 1, timestamp: 1, ip: 1 } }).limit(limit).toArray();
 		const responseItem = {
-			messages: messages,
-			ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+			
 		}
 
-		res.json({ success: true, responseItem });
+		res.json({messages: messages,
+			ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress});
 	} catch (err) {
 		res.status(500).json({ success: false, error: err.message });
 	}
