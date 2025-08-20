@@ -62,30 +62,7 @@ export async function getMessages(amount){
 
 export async function sendMessage(message) {
 
-    console.log("Trying to send message:", message);
-    if (client.topology?.isConnected() !== true) {
-        await client.connect();
-    }
     
-
-    const timestamp = Date.now();
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    console.log("ip ?", req.headers['x-forwarded-for'], req.socket.remoteAddress);
-
-    const db = client.db("aoc");
-    const collection = db.collection("messages");
-    try {
-        const result = await collection.insertOne(
-            { 
-                value: `${message} - ${timestamp} - ${ip}`,
-                timestamp: new Date(),
-            });
-        console.log("Message sent:", result);
-        return result;
-    } catch (error) {
-        console.error("Error sending message:", error);
-        throw error;
-    }
 }
 
 export async function closeConnection() {
