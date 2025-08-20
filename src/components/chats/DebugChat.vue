@@ -38,6 +38,13 @@ onMounted(() => {
         <ul>
             <li v-for="message in messageList" :key="message.id">{{ message.value }}</li>
         </ul>
-        <input v-model="newMessage" @keyup.enter="sendMessage(newMessage)" placeholder="Type your message..." class="border p-2 w-full" />
+        <input 
+        v-model="newMessage" 
+        @keyup.enter="{
+            sendMessage(newMessage); 
+            newMessage = '';
+        }" 
+        placeholder="Type your message..." 
+        class="border p-2 w-full" />
     </div>
 </template>

@@ -68,12 +68,16 @@ export async function sendMessage(message) {
     }
     
 
+    const timestamp = Date.now();
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    console.log("ip ?", req.headers['x-forwarded-for'], req.socket.remoteAddress);
+
     const db = client.db("aoc");
     const collection = db.collection("messages");
     try {
         const result = await collection.insertOne(
             { 
-                value: message,
+                value: `${message} - ${timestamp} - ${ip}`,
                 timestamp: new Date(),
             });
         console.log("Message sent:", result);
@@ -83,7 +87,6 @@ export async function sendMessage(message) {
         throw error;
     }
 }
-
 
 export async function closeConnection() {
     try {
