@@ -7,20 +7,7 @@ export default function handler(req, res) {
 
   const SESSION = process.env.VITE_SESSION
   const LEADERBOARD = process.env.VITE_LEADERBOARD
-
-  console.log('Environment variables:', { 
-    SESSION: SESSION ? 'SET' : 'NOT SET', 
-    LEADERBOARD: LEADERBOARD ? 'SET' : 'NOT SET' 
-  })
-
-  if (!SESSION || !LEADERBOARD) {
-    return res.status(500).json({ 
-      error: 'SESSION or LEADERBOARD token not found in environment variables',
-      sessionExists: !!SESSION,
-      leaderboardExists: !!LEADERBOARD
-    })
-  }
-
+  
   const leaderboardId = LEADERBOARD.split('-')[0]
   const options = {
     hostname: 'adventofcode.com',

@@ -1,4 +1,3 @@
-// database.js
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
 import path from 'path';
@@ -20,7 +19,6 @@ export const client = new MongoClient(uri, {
         deprecationErrors: true,
     }
 });
-console.log("MongoDB client created with URI:", uri);
 
 export async function run() {
     try {
@@ -35,7 +33,6 @@ export async function run() {
     }
 }
 
-
 export async function getDb() {
     if (client.topology?.isConnected() !== true) {
         await client.connect();
@@ -46,23 +43,6 @@ export async function getDb() {
     const planets = await collection.find({}).limit(10).toArray();
     console.log("Retrieved planets:", planets);
     return planets;
-}
-
-export async function getMessages(amount){
-    if (client.topology?.isConnected() !== true) {
-        await client.connect();
-    }
-
-    const db = client.db("aoc");
-    const collection = db.collection("messages");
-    const messages = await collection.find({}).limit(amount).toArray();
-    console.log("Retrieved messages:", messages);
-    return messages;
-}
-
-export async function sendMessage(message) {
-
-    
 }
 
 export async function closeConnection() {

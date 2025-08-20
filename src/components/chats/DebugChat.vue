@@ -12,7 +12,7 @@ async function sendMessage(message) {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ message })
     })
-    getLastMessages(100);
+    getLastMessages(59);
 }
 
 async function getLastMessages(n){
@@ -25,7 +25,7 @@ async function getLastMessages(n){
 }
 
 onMounted(() => {
-    getLastMessages(100);
+    getLastMessages(59);
 });
 
 
@@ -34,7 +34,7 @@ onMounted(() => {
 
 <template>
     <div class=" w-full h-400 bg-red-400">
-        <button @click="getLastMessages(100)" class="px-4 py-2 bg-blue-500 text-white rounded">Get Last Messages</button>
+        <button @click="getLastMessages(59)" class="px-4 py-2 bg-blue-500 text-white rounded">Get Last Messages</button>
         <ul>
             <li v-for="message in messageList" :key="message.id">{{ message.value }}</li>
         </ul>
