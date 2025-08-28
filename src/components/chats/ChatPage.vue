@@ -1,10 +1,11 @@
 <script setup>
 import { onMounted, ref, nextTick } from 'vue'
+import { RouterLink } from 'vue-router'
 import TextMessage from './TextMessage.vue'
 import AuthPage from './AuthPage.vue'
 import pingSound from '@/assets/ping.wav'
 import ConversationHeader from './ConversationHeader.vue'
-import UserTab from './UserTab.vue'
+import UserTab from '../user/UserTab.vue'
 
 const props = defineProps({
   member: {
@@ -209,8 +210,9 @@ async function editMessage(messageId, newMessage) {
       Future logo and name
     </div>
 
-    <UserTab />
-
+    <RouterLink to="/user" class="text-white">
+      <UserTab v-if="isLoggedIn"/>
+    </RouterLink>
 
   </div>
   <div v-if="authLoading" class="loading-screen">
