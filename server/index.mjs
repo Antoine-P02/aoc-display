@@ -3,7 +3,7 @@ import https from 'https';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { client } from '../api/functions.mjs';
-import { run, getDb, closeConnection, authCheck, registerUser } from '../api/functions.mjs';
+import { CODES, closeConnection, getLastMessages, deleteMessage, editMessage, authCheck, registerUser, isTokenValid } from '../api/functions.mjs';
 const app = express();
 const PORT = 3001;
 
@@ -11,29 +11,10 @@ app.use(cors());
 
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
-
 app.listen(PORT, () => {
 	console.log(`Backend server running on http://localhost:${PORT}`);
 });
 
-app.get('/api/db', async (req, res) => {
-	try {
-		console.log("call db file");
-		await run();
-		res.json({ success: true });
-	} catch (err) {
-		res.status(500).json({ success: false, error: err.message });
-	}
-});
-
-app.get('/api/get-db', async (req, res) => {
-	try {
-		const db = await getDb();
-		res.json({ success: true, dbName: db });
-	} catch (err) {
-		res.status(500).json({ success: false, error: err.message });
-	}
-});
 
 app.get('/api/close-db', async (req, res) => {
 	try {
@@ -96,26 +77,12 @@ app.get('/api/getMessages', async (req, res) => {
 
 app.get('/api/getLastMessages', async (req, res) => {
 	const limit = parseInt(req.query.limit);
-	console.log("hello from Local", req.query.limit);
-	console.log("Fetching messages with limit:", limit);
-	console.log("Client not connected, connecting...", client.topology?.isConnected());
-	try {
-		const limit = parseInt(req.query?.limit ?? '100', 10) || 100
-		if (client.topology?.isConnected() !== true) {
-			await client.connect();
-		}
-
-		const db = client.db("aoc");
-		const collection = db.collection("messages");
-		const messages = await collection.find({}, { projection: { _id: 0, value: 1, images: 1, timestamp: 1, ip: 1 } }).sort({ _id: -1 }).limit(limit).toArray();
-
-		res.json({
-			messages: messages.reverse(),
-			ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress
-		});
-	} catch (err) {
-		res.status(500).json({ success: false, error: err.message });
-	}
+	const skip = parseInt(req.query.skip);
+	const messages = await getLastMessages(limit, skip);
+	res.send({
+		messages: messages.reverse(),
+		ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress
+	});
 });
 
 app.post('/api/sendMessage', async (req, res) => {
@@ -137,8 +104,9 @@ app.post('/api/sendMessage', async (req, res) => {
 		const result = await collection.insertOne(
 			{
 				value: message,
-				images: images || null,
+				images: images || [],
 				timestamp: new Date(),
+				isEdited: null,
 				ip: ip
 			});
 		console.log("Message sent:", result);
@@ -150,36 +118,61 @@ app.post('/api/sendMessage', async (req, res) => {
 
 });
 
+app.post('/api/deleteMessage', async (req, res) => {
+	const message = req.body.value;
+	try {
+		await deleteMessage(message);
+		res.status(200).json({ success: true });
+	} catch (err) {
+		console.error('api/deleteMessage error:', err);
+		res.status(500).json({ error: err.message || 'Internal error' });
+	}
+});
+
+app.post('/api/editMessage', async (req, res) => {
+	const messageId = req.body.messageId;
+	const newMessage = req.body.newMessage;
+	console.log("Editing message from:", messageId, "to:", newMessage);
+	try {
+		await editMessage(messageId, newMessage);
+		res.status(200).json({ success: true });
+	} catch (err) {
+		console.error('api/editMessage error:', err);
+		res.status(500).json({ error: err.message || 'Internal error' });
+	}
+});
+
 app.get('/api/loginUser', async (req, res) => {
 	const userName = req.query.username;
 	const password = req.query.password;
-	try {
-
-		const rezzzz = await authCheck(userName, password);
-		if (!rezzzz) {
-			return
-		}
-		res.status(200).json({ user: rezzzz });
-	} catch (err) {
-		console.error('api/loginUser error:', err);
-		res.status(500).json({ error: err.message || 'Internal error' });
+	const registration = await authCheck(userName, password);
+	if (registration in CODES) {
+		console.log('Login error:', CODES[registration]);
+		return res.status(400).send(CODES[registration]);
 	}
+	res.status(200).send(registration);
 });
 
 app.get('/api/registerUser', async (req, res) => {
 	const userName = req.query.username;
 	const password = req.query.password;
 	console.log("Registering user:", userName, password);
-	try {
-
-		const rezzzz = await registerUser(userName, password);
-		if (!rezzzz) {
-			return res.status(400).json({ error: "User registration failed" });
-		}
-
-		res.status(201).json({ user: rezzzz });
-	} catch (err) {
-		console.error('api/registerUser error:', err);
-		res.status(500).json({ error: err.message || 'Internal error' });
+	
+	const registration = await registerUser(userName, password);
+	if (registration in CODES) {
+		console.log('Registration error:', CODES[registration]);
+		return res.status(400).send(CODES[registration]);
 	}
+
+	res.status(201).send('User registered successfully');
+});
+
+app.get('/api/isTokenValid', async (req, res) => {
+	const token = req.query.token;
+	const username = await isTokenValid(token);
+	if (username in CODES) {
+		console.log('Token validation error:', CODES[username]);
+		return res.status(400).send(CODES[username]);
+	}
+	res.status(200).send(username);
 });

@@ -9,6 +9,13 @@ const confirmPassword = ref('')
 
 const emit = defineEmits(['login-success', 'register-success'])
 
+const props = defineProps({
+  errorWarning: String
+})
+
+const warningText = ref(props.errorWarning)
+const showPassword = ref(false)
+
 // Toggle between login and register
 function toggleMode() {
   mode.value = mode.value === 'login' ? 'register' : 'login'
@@ -20,10 +27,18 @@ function toggleMode() {
 // Submit handler
 function submitForm() {
   if (mode.value === 'register' && password.value !== confirmPassword.value) {
-    alert("Passwords don't match!")
+    warningText.value = "Passwords do not match";
     return
   }
-
+  if (!username.value){
+    warningText.value = "Username is required";
+    return
+  }
+  if (!password.value) {
+    warningText.value = "Password is required";
+    return
+  }
+  
   const payload = {
     username: username.value,
     password: password.value
@@ -43,10 +58,13 @@ function submitForm() {
 async function loginUser() {
   console.log('Logging in with:', username.value, password.value)
   const response = await fetch(`${base_url}/api/loginUser?username=${username.value}&password=${password.value}`)
-  console.log('Login response:', response)
-  const text = await response.text()
-  console.log('Login response text:', text)
-  emit('login-success')
+  if (response.ok) {
+    sessionStorage.setItem('token', await response.text())
+    emit('login-success')
+  }
+  else {
+    warningText.value = await response.text()
+  }
 }
 
 async function registerShit() {
@@ -61,6 +79,7 @@ async function registerShit() {
 
 <template>
   <div class="max-w-md mx-auto mt-20 p-8 bg-white rounded-xl shadow-md">
+
     <h2 class="text-2xl font-bold text-center mb-6">
       {{ mode === 'login' ? 'Login' : 'Register' }}
     </h2>
@@ -69,21 +88,38 @@ async function registerShit() {
       <!-- Username -->
       <div>
         <label class="block mb-1 font-medium">Username</label>
-        <input v-model="username" type="text" placeholder="Enter your Username" required autocomplete="username" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input v-model="username" type="text" placeholder="Enter your Username" autocomplete="username"
+          class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
 
       <!-- Password -->
       <div>
         <label class="block mb-1 font-medium">Password</label>
-        <input v-model="password" type="password" placeholder="Enter your password" required autocomplete="current-password" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <input v-model="password" :type="showPassword ? 'text' : 'password'" placeholder="Enter your password"
+          autocomplete="current-password"
+          class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button @click="showPassword = !showPassword" type="button" class="absolute m-2 -ml-8  text-gray-500">
+          <span>
+            <i :class="`fas fa-eye${showPassword ? '-slash' : ''}`" />
+          </span>
+        </button>
+        </input>
       </div>
 
       <!-- Only show for register -->
       <div v-if="mode === 'register'">
-        <label class="block mb-1 font-medium">Confirm Password</label>
-        <input v-model="confirmPassword" type="password" placeholder="Confirm your password" required autocomplete="current-password" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <label class="block mb-1 font-medium">Password</label>
+        <input v-model="confirmPassword" :type="showPassword ? 'text' : 'password'" placeholder="Confirm your password"
+          autocomplete="current-password"
+          class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button @click="showPassword = !showPassword" type="button" class="absolute m-2 -ml-8  text-gray-500">
+          <span>
+            <i :class="`fas fa-eye${showPassword ? '-slash' : ''}`" />
+          </span>
+        </button>
+        </input>
       </div>
-
+      <p class="text-red-500 text-center">{{ warningText }}</p>
       <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors">
         {{ mode === 'login' ? 'Login' : 'Register' }}
       </button>

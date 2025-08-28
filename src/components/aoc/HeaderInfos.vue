@@ -31,10 +31,7 @@ const emit = defineEmits(['update:mode'])
 </script>
 
 <template>
-  <div class="grid grid-cols-[10%_75%_10%] justify-center bg-gray-900 w-full h-full gap-10">
-    <img src="/vite.svg" class="h-32 w-32 transition-all hover:drop-shadow-[0_0_2em_#646cffaa]" alt="Vite logo" />
-
-    <div class="mt-20">
+  <div class="justify-center bg-gray-900 w-full h-full gap-10">
       <div class="bg-gray-700 text-white rounded-xl p-6 shadow-lg">
         <div class="flex flex-col gap-6 h-40">
           <h2 class="text-2xl font-extrabold text-yellow-400 text-center">Advent of Code 2024 Completion</h2>
@@ -76,7 +73,4 @@ const emit = defineEmits(['update:mode'])
         <button :class="['px-4 py-2.5 rounded-lg font-semibold transition-all whitespace-nowrap', props.mode === 'chat' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="emit('update:mode', 'chat')">Chat</button>
       </div>
     </div>
-
-    <img src="/vue.svg" class="h-32 w-32 transition-all hover:drop-shadow-[0_0_2em_#42b883aa]" alt="Vue logo" />
-  </div>
 </template>

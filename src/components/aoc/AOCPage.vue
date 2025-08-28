@@ -60,14 +60,15 @@ const feed = computed(() => {
 </script>
 
 <template>
-  <HeaderInfos :member="member" :loading="loading" :error="error" :mode="mode" @update:mode="mode = $event" />
   <div v-if="mode === 'feed'">
+    <HeaderInfos :member="member" :loading="loading" :error="error" :mode="mode" @update:mode="mode = $event" />
     <Feed :feed="feed" />
   </div>
   <div v-else-if="mode === 'progress'">
+    <HeaderInfos :member="member" :loading="loading" :error="error" :mode="mode" @update:mode="mode = $event" />
     <Completion :days="days" :mode="mode" :member="member" />
   </div>
   <div v-else>
-    <ChatPage :member="member" />
+    <ChatPage :member="member" @back-to-aoc="mode = 'progress'" />
   </div>
 </template>

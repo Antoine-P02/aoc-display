@@ -2,7 +2,7 @@ import { client } from "./functions.mjs";
 
 export default async function handler(req, res) {
     try {
-        const limit = parseInt(req.query?.limit ?? '100', 10) || 100
+        const limit = parseInt(req.query?.limit ?? '100', 7) || 100
         if (client.topology?.isConnected() !== true) {
             await client.connect();
         }

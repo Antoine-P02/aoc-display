@@ -1,1 +1,24 @@
 @import 'tailwindcss';
+
+@font-face {
+  font-family: 'Atlassian Mono';
+  src: url('./assets/AtlassianMono-latin.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  font-family: 'Atlassian Mono', monospace;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

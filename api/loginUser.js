@@ -6,6 +6,7 @@ export default async function handler(req, res) {
     try {
 
         const res = await authCheck(userName, password);
+        console.log("Login response:", res);
         if (!res) {
             return
         }
