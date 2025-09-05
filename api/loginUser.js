@@ -1,4 +1,4 @@
-import { authCheck } from './functions.mjs'
+import { authCheck, CODES } from './functions.mjs'
 
 export default async function handler(req, res) {
   const userName = req.query.username
