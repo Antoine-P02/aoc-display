@@ -9,15 +9,13 @@ const member = {
 }
 
 function logout(event) {
-  event.preventDefault();
+  event.preventDefault()
   const token = sessionStorage.getItem('token')
-  if ( token ) {
+  if (token) {
     sessionStorage.removeItem('token')
   }
-  emit('logout');
-
+  emit('logout')
 }
-
 </script>
 
 <template>
@@ -33,8 +31,7 @@ function logout(event) {
             <!--
           Might be useful wit socket.io
           <span class="text-white text-xs">Online</span>
-          -->
-          </span>
+          --></span>
         </div>
       </div>
     </div>
