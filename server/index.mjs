@@ -96,7 +96,7 @@ app.get('/api/getLastMessages', async (req, res) => {
 
 app.post('/api/sendMessage', async (req, res) => {
   console.log('Received message:', req.body)
-  const message = req.body.value
+  const message = req.body;
   console.log('Message:', message)
   try {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress

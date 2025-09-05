@@ -2,8 +2,8 @@ import { sendMessage } from './functions.mjs'
 
 export default async function handler(req, res) {
   console.log('Received message:', req.body)
-  const message = req.body.value
-  console.log('Message:', message)
+  const message = req.body
+  console.log('Message:', message.value)
   try {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
     await sendMessage(message, ip)
