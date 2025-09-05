@@ -61,11 +61,11 @@ export async function getLastMessages(limit, skip) {
 }
 
 export async function sendMessage(message, ip) {
+  console.log('sendMessage called with message:', message, 'and ip:', ip)
   const collection = await getAocCollection('messages')
   message.timestamp = new Date()
   message.ip = ip || message.ip
   await collection.insertOne(message)
-  res.status(200).send('Message sent')
 }
 
 export async function deleteMessage(message) {
