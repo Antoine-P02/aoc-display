@@ -39,21 +39,21 @@ function formatTs(ts, locale = 'en-GB') {
 </script>
 
 <template>
-  <div class="font-bold text-lg text-green-400 mb-3">Day {{ dayNumber }}</div>
+  <div class="font-bold text-lg text-green mb-3">Day {{ dayNumber }}</div>
 
   <div class="space-y-2">
     <div class="flex items-center gap-2">
       <Star :isFilled="!!part1" />
-      <span class="text-md text-gray-300">Part 1</span>
-      <span v-if="part1" class="text-sm text-gray-500 ml-auto">
+      <span class="text-md text-white">Part 1</span>
+      <span v-if="part1" class="text-sm text-light-gray ml-auto">
         {{ formatTs(part1.get_star_ts) }}
       </span>
     </div>
 
     <div class="flex items-center gap-2">
       <Star :isFilled="!!part2" />
-      <span class="text-md text-gray-300">Part 2</span>
-      <span v-if="part2" class="text-sm text-gray-500 ml-auto">
+      <span class="text-md text-white">Part 2</span>
+      <span v-if="part2" class="text-sm text-light-gray ml-auto">
         {{ formatTs(part2.get_star_ts) }}
       </span>
     </div>

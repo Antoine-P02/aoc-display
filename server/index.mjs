@@ -3,7 +3,7 @@ import https from 'https';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { client } from '../api/functions.mjs';
-import { CODES, closeConnection, getLastMessages, deleteMessage, editMessage, authCheck, registerUser, isTokenValid } from '../api/functions.mjs';
+import { CODES, closeConnection, getLastMessages, sendMessage, deleteMessage, editMessage, authCheck, registerUser, isTokenValid } from '../api/functions.mjs';
 const app = express();
 const PORT = 3001;
 
@@ -88,34 +88,15 @@ app.get('/api/getLastMessages', async (req, res) => {
 app.post('/api/sendMessage', async (req, res) => {
 	console.log("Received message:", req.body);
 	const message = req.body.value;
-	const images = req.body.images;
-	console.log("Message:", message, "Images:", images);
-	if (!message) return res.status(400).json({ error: 'Missing message' })
-	console.log("Trying to send message:", message);
-	if (client.topology?.isConnected() !== true) {
-		await client.connect();
-	}
-
-	const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-
-	const db = client.db("aoc");
-	const collection = db.collection("messages");
+	console.log("Message:", message);
 	try {
-		const result = await collection.insertOne(
-			{
-				value: message,
-				images: images || [],
-				timestamp: new Date(),
-				isEdited: null,
-				ip: ip
-			});
-		console.log("Message sent:", result);
-		res.status(200).json({ success: true })
+		const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+		await sendMessage(message, ip);
+		res.status(200).json({ success: true });
 	} catch (error) {
-		console.error("Error sending message:", error);
-		throw error;
+		console.error('api/sendMessage error:', error);
+		res.status(500).json({ error: error.message || 'Internal error' });
 	}
-
 });
 
 app.post('/api/deleteMessage', async (req, res) => {
@@ -164,7 +145,7 @@ app.get('/api/registerUser', async (req, res) => {
 		return res.status(400).send(CODES[registration]);
 	}
 
-	res.status(201).send('User registered successfully');
+	res.status(201).send(registration);
 });
 
 app.get('/api/isTokenValid', async (req, res) => {

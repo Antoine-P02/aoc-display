@@ -1,11 +1,9 @@
-<script setup>
-</script>
-
+<script setup></script>
 
 <template>
-  <div class="flex items-center justify-between p-4 bg-gray-100 border-b">
+  <div class="flex items-center justify-center p-4 bg-light-gray border-b">
     This is the beginning of the conversation
-    <br>
+    <br />
     < ! > WIP < ! >
   </div>
 </template>

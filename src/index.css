@@ -1,5 +1,39 @@
 @import 'tailwindcss';
 
+@theme {
+  --color-white: #ffffff;
+  --color-white-hover: #fff8e1;
+  --color-black: #000000;
+
+  --color-light-gray: #d1d5dc; /* gray-300 */
+  --color-gray: #364153; /* gray-700 */
+  --color-gray-hover: #4a5565; /* gray-600 */
+  --color-dark-gray: #1e2939; /* gray-800 */
+
+  --color-light-green: #dcfce7;
+  --color-light-green-hover: #000000;
+  --color-green: #05df72;
+  --color-green-hover: #000000;
+  --color-dark-green: #00a63e;
+  --color-dark-green-hover: #008236;
+
+  --color-light-blue: #bedbff; /* blue-200 */
+  --color-blue: #51a2ff; /* blue-400 */
+  --color-dark-blue: #2b7fff; /* blue-500 */
+  --color-dark-blue-hover: #155dfc; /* blue-600 */
+
+  --color-light-yellow: #fee685; /* amber-200 */
+  --color-yellow: #ffb900; /* amber-400 */
+  --color-medium-yellow: #e17100; /* amber-600 */
+  --color-dark-yellow: #bb4d00; /* amber-700 */
+  --color-darker-yellow: #973c00; /* amber-800 */
+
+  --color-red: #e7000b;
+  --color-red-hover: #c10007;
+
+  --color-grey: #000000;
+}
+
 @font-face {
   font-family: 'Atlassian Mono';
   src: url('./assets/AtlassianMono-latin.woff2') format('woff2');
@@ -9,6 +43,7 @@
 }
 
 body {
+  background-color: #101828;
   font-family: 'Atlassian Mono', monospace;
 }
 

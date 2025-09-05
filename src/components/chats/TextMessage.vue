@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import CancelButton from '../reusables/cancelButton.vue'
 
 const props = defineProps({
   message: {
@@ -16,7 +17,6 @@ const fullImage = ref(null)
 const edit = ref(false)
 const messageText = ref(props.message.value)
 const editedText = ref(props.message.value)
-
 
 function formatDate(ts) {
   const date = new Date(ts)
@@ -42,7 +42,7 @@ function editMessage() {
     _id: messageId,
     value: editedText.value,
     images: props.message.images,
-    isEdited: Date.now(),
+    isEdited: Date.now()
   }
   props.editMessage(messageId, newMessage)
   messageText.value = editedText.value
@@ -50,7 +50,7 @@ function editMessage() {
   switchEdit()
 }
 
-function switchEdit(){
+function switchEdit() {
   edit.value = !edit.value
   if (edit.value) {
     editedText.value = messageText.value
@@ -71,63 +71,47 @@ function setPopupImage(image) {
   <div
     class="h-fit max-w-1/2 my-3 mx-1 rounded-3xl p-4"
     :class="{
-      'rounded-br-none ml-auto bg-blue-400 ': isCurrentUser,
-      'rounded-bl-none mr-auto bg-blue-200 ': !isCurrentUser
+      'rounded-br-none ml-auto bg-blue ': isCurrentUser,
+      'rounded-bl-none mr-auto bg-light-blue ': !isCurrentUser
     }"
   >
     <div class="flex justify-end">
       <span class="text-xs">
         {{ formatDate(message.timestamp) }}
       </span>
-      <button 
-            v-if="isCurrentUser" 
-            @click="switchEdit"
-            class="ml-2 text-xs text-gray-600 hover:text-gray-800">
-            <i class="fas fa-edit"></i>
-        </button>
-        <button 
-            v-if="isCurrentUser" 
-            @click="deleteMessage" 
-            class="ml-2 text-xs text-gray-600 hover:text-gray-800">
-            <i class="fas fa-trash"></i>
-        </button>
+      <button v-if="isCurrentUser" @click="switchEdit" class="ml-2 text-xs text-gray-hover hover:text-light-gray">
+        <i class="fas fa-edit"></i>
+      </button>
+      <button v-if="isCurrentUser" @click="deleteMessage" class="ml-2 text-xs text-gray-hover hover:text-light-gray">
+        <i class="fas fa-trash"></i>
+      </button>
     </div>
     <div class="flex items-center mb-2">
-      <img v-for="image in message.images" :src="image" @click="setPopupImage(image)" class="w-auto h-auto  rounded-md object-contain mr-2" />
+      <img v-for="image in message.images" :src="image" @click="setPopupImage(image)" class="w-auto h-auto rounded-md object-contain mr-2" />
     </div>
     <div v-if="edit">
-      <input
-        v-model="editedText"
-        @keydown.esc="cancelEdit"
-        @keypress.enter="editMessage"
-        :size="editedText.length"
-        class="w-full text-md focus:outline-none" />
-        <span class="text-[9px] text-center block">
-          <strong>
-            Escape
-          </strong> 
-          to cancel, 
-          <strong>
-            Enter
-          </strong>
-          to save
-        </span>
+      <input v-model="editedText" @keydown.esc="cancelEdit" @keypress.enter="editMessage" :size="editedText.length" class="w-full text-md focus:outline-none" />
+      <span class="text-[9px] text-center block">
+        <strong>Escape</strong>
+        to cancel,
+        <strong>Enter</strong>
+        to save
+      </span>
     </div>
     <div v-else class="text-md">
       <span>
         {{ messageText }}
       </span>
-      <div v-if="props.message.isEdited != null" class="text-xs text-gray-500">
-        <span class="text-[9px] text-center font-bold block text-amber-400">
-          (Edited at {{ formatDate(props.message.isEdited) }})
-        </span>
+      <div v-if="props.message.isEdited != null" class="text-xs">
+        <span class="text-[9px] text-center font-bold block text-yellow">(Edited at {{ formatDate(props.message.isEdited) }})</span>
       </div>
     </div>
 
-    <!-- Fullscreen modal -->
-    <div v-if="fullImage" class="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
-      <img :src="fullImage" class="max-w-full max-h-full rounded-md" />
-      <button @click="setPopupImage(null)" class="absolute top-4 right-4 text-white text-2xl">&times;</button>
+    <!-- Img popup -->
+    <div v-if="fullImage" @click="setPopupImage(null)" class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
+      <img :src="fullImage" @click.stop class="max-w-full max-h-full rounded-md" />
+      <CancelButton :onClick="removePicture" :cond="pictureUrl" title="Remove Picture" offset="4" :size="8" :rounding="90" />
+      <CancelButton :onClick="() => (fullImage = null)" size="10" />
     </div>
   </div>
 </template>

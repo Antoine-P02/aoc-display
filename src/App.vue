@@ -1,8 +1,7 @@
-<script setup>
-</script>
+<script setup></script>
 
 <template>
-  <div class="bg-gray-900 w-full min-h-screen ">
+  <div class="w-full min-h-screen p-4">
     <router-view />
   </div>
 </template>

@@ -27,7 +27,9 @@ export const CODES = {
     21001: "User password incorrect",
     "User password incorrect": 21001,
     21002: "Invalid token",
-    "Invalid token": 21002
+    "Invalid token": 21002,
+    21003: "User already exists",
+    "User already exists": 21003,
 }
 
 export async function closeConnection() {
@@ -116,20 +118,25 @@ export async function registerUser(userName, password) {
 
     const loginCheck = await authCheck(userName, password);
     console.log('registerUser loginCheck:', loginCheck);
-    if (loginCheck in CODES) {
-        console.log('Register', CODES[loginCheck]);
-        return loginCheck
+    if (loginCheck !== CODES["User not found"]) {
+        console.log('Register', CODES["User already exists"]);
+        return CODES["User already exists"];
     }
 
     const user = {
         username: userName,
         //password: hashPassword(password)
         password: password,
-        token: generateToken(userName + password)
+        token: generateToken(userName + password),
+        description: "",
+        image: null,
+        location: "",
+        tz: ""
     };
 
     const collection = await getAocCollection('users');
     await collection.insertOne(user);
+    console.log("about to return user:", user);
     return user;
 }
 

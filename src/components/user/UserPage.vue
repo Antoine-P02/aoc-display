@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import QRCodeStyling from 'qr-code-styling'
+import CancelButton from '../reusables/cancelButton.vue'
 
 const username = ref('John Doe')
 const location = ref('')
@@ -15,19 +16,19 @@ onMounted(() => {
     height: 220,
     data: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     dotsOptions: {
-      color: "#1e293b",
-      type: "rounded"
+      color: '#1e293b',
+      type: 'rounded'
     },
     backgroundOptions: {
-      color: "lightgrey",
+      color: 'lightgrey'
     },
     cornersSquareOptions: {
-      color: "#f59e42",
-      type: "extra-rounded"
+      color: '#f59e42',
+      type: 'extra-rounded'
     },
     cornersDotOptions: {
-      color: "#1e293b",
-      type: "dot"
+      color: '#1e293b',
+      type: 'dot'
     }
   })
   qrCode.append(qrCodeRef.value)
@@ -39,6 +40,10 @@ function onPictureChange(e) {
     profilePicture.value = file
     pictureUrl.value = URL.createObjectURL(file)
   }
+}
+
+function saveProfile() {
+  alert('Profile saved !\n(Sike, still havent done shit on this lmao)')
 }
 
 function removePicture() {
@@ -53,16 +58,16 @@ function goBack() {
 
 <template>
   <div
-    class="w-full h-screen bg-gradient-to-br from-amber-300 via-yellow-100 to-amber-400 flex flex-col items-center py-10">
+    class="w-full h-screen bg-gradient-to-br from-light-yellow via-yellow-100 to-yellow flex flex-col items-center py-10">
     <!-- Top Bar -->
     <div class="w-full max-w-5xl flex items-center justify-between mb-8 px-6">
       <button @click="goBack"
-        class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white shadow hover:bg-amber-100 transition">
-        <i class="fas fa-arrow-left text-amber-600" />
+        class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white shadow hover:bg-white-hover transition">
+        <i class="fas fa-arrow-left text-darker-yellow" />
 
         Back
       </button>
-      <span class="font-bold text-xl text-amber-800">Profile</span>
+      <span class="font-bold text-xl text-darker-yellow">Profile</span>
       <div></div>
     </div>
     <!-- Main Layout -->
@@ -75,25 +80,16 @@ function goBack() {
             <img v-if="pictureUrl" :src="pictureUrl" alt="Profile Picture"
               class="w-44 h-44 rounded-full object-cover shadow-lg border-4 border-white transition" />
             <div v-else
-              class="w-44 h-44 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-gray-500 text-2xl shadow-lg border-4 border-white">
+              class="w-44 h-44 rounded-full bg-gradient-to-br from-light-gray to-light-yellow flex items-center justify-center text-gray text-2xl shadow-lg border-4 border-white">
               <i class="fas fa-user fa-shake fa-xl" />
             </div>
-            <button
-              v-if="pictureUrl"
-              @click="removePicture"
-              class="absolute top-2 right-2 bg-white rounded-full p-2 shadow hover:bg-red-100 transition"
-              title="Remove Picture"
-            >
-              <span class="h-5 w-5 text-red-600 flex items-center justify-center">
-                <i class="fas fa-times" />
-              </span>
-            </button>
+            <CancelButton :onClick="removePicture" :cond="pictureUrl" title="Remove Picture" offset="4" :size="8"
+              :rounding="90" />
           </div>
           <label class="mt-4 cursor-pointer flex flex-col items-center gap-2">
             <span
-              class="px-4 py-2 bg-amber-500 text-white rounded-lg shadow hover:bg-amber-600 transition text-sm font-semibold">
-              Import Image
-            </span>
+              class="px-4 py-2 bg-yellow text-white rounded-lg shadow hover:bg-dark-yellow transition text-sm font-semibold">Import
+              Image</span>
             <input type="file" accept="image/*" @change="onPictureChange" class="hidden" />
           </label>
         </div>
@@ -105,22 +101,29 @@ function goBack() {
       <!-- Right: User Info -->
       <div class="flex flex-col justify-center gap-8 flex-1">
         <div>
-          <label class="font-bold mb-2 text-lg text-amber-700">Username</label>
+          <label class="font-bold mb-2 text-lg text-dark-yellow">Username</label>
           <input v-model="username"
-            class="w-full p-3 rounded-xl border-2 border-amber-200 text-lg focus:outline-none focus:border-amber-400 transition" />
+            class="w-full p-3 rounded-xl border-2 border-light-yellow text-lg focus:outline-none focus:border-yellow transition" />
         </div>
         <div>
-          <label class="font-bold mb-2 text-lg text-amber-700">Location</label>
+          <label class="font-bold mb-2 text-lg text-dark-yellow">Location</label>
           <input v-model="location"
-            class="w-full p-3 rounded-xl border-2 border-amber-200 text-lg focus:outline-none focus:border-amber-400 transition"
+            class="w-full p-3 rounded-xl border-2 border-light-yellow text-lg focus:outline-none focus:border-yellow transition"
             placeholder="Enter your location" />
         </div>
         <div>
-          <label class="font-bold mb-2 text-lg text-amber-700">Description</label>
+          <label class="font-bold mb-2 text-lg text-dark-yellow">Description</label>
           <textarea v-model="description"
-            class="w-full p-3 rounded-xl border-2 border-amber-200 text-lg focus:outline-none focus:border-amber-400 transition"
+            class="w-full p-3 rounded-xl border-2 border-light-yellow text-lg focus:outline-none focus:border-yellow transition"
             rows="4" placeholder="Describe yourself"></textarea>
         </div>
+        <button 
+          @click="saveProfile"
+          class="py-3 bg-yellow text-white rounded-lg shadow hover:bg-dark-yellow transition font-semibold"
+        >
+          Save Changes
+        </button>
+
       </div>
     </div>
   </div>
