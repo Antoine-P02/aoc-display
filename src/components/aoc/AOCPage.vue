@@ -27,9 +27,11 @@ onMounted(async () => {
     // Only show the current user
     const id = data.owner_id
     member.value = data.members[id]
-  } catch (e) {
+  } 
+  catch (e) {
     error.value = e.message
-  } finally {
+  } 
+  finally {
     loading.value = false
   }
 })

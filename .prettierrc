@@ -1,7 +1,0 @@
-{
-  "trailingComma": "none",
-  "bracketSpacing": true,
-  "arrowParens": "avoid",
-  "htmlWhitespaceSensitivity": "ignore",
-  "printWidth": 120000
-}

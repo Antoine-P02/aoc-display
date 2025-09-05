@@ -48,9 +48,11 @@ function submitForm() {
 
   if (mode.value === 'login') {
     loginUser(payload)
-  } else if (mode.value === 'register') {
+  } 
+  else if (mode.value === 'register') {
     registerShit()
-  } else {
+  } 
+  else {
     console.error('Unknown mode:', mode.value)
   }
 }

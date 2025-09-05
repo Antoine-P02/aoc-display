@@ -41,7 +41,8 @@ async function getAuthStatus() {
     if (response.ok) {
       isLoggedIn.value = true
       authLoading.value = false
-    } else {
+    } 
+    else {
       errorWarning.value = await response.text()
     }
   }
@@ -78,7 +79,8 @@ async function getLastMessages(limit, skip) {
   if (skip === 0) {
     messageList.value = jsonData.messages
     ip.value = jsonData.ip
-  } else {
+  } 
+  else {
     return jsonData.messages
   }
   await nextTick()
@@ -137,7 +139,8 @@ function handlePaste(event) {
 async function handleScroll() {
   if (chatContainer.value.scrollTop < chatContainer.value.scrollHeight - chatContainer.value.clientHeight - 100) {
     showScrollToBottom.value = true
-  } else {
+  } 
+  else {
     showScrollToBottom.value = false
   }
 
@@ -150,7 +153,8 @@ async function handleScroll() {
       messageList.value = [...previousMessages, ...messageList.value]
       chatContainer.value.scrollTop = chatContainer.value.scrollHeight - prevMaxScroll + 5
       status.value = 'bot'
-    } else {
+    } 
+    else {
       status.value = 'beginning'
     }
   }
@@ -190,7 +194,7 @@ async function editMessage(messageId, newMessage) {
         <i class="fas fa-arrow-left" />
         Back to Home
       </button>
-      <button @click="getLastMessages(NUMBER_OF_MESSAGES, 0)" class="px-4 py-2 bg-dark-blue text-white rounded-r-md">
+      <button v-if="isLoggedIn" @click="getLastMessages(NUMBER_OF_MESSAGES, 0)" class="px-4 py-2 bg-dark-blue text-white rounded-r-md">
         <i class="fas fa-sync" />
       </button>
     </div>
