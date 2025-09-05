@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import CancelButton from '../reusables/cancelButton.vue'
+import CancelButton from '../reusables/CancelButton.vue'
 
 const props = defineProps({
   message: {

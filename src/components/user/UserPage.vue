@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import QRCodeStyling from 'qr-code-styling'
-import CancelButton from '../reusables/cancelButton.vue'
+import CancelButton from '../reusables/CancelButton.vue'
 
 const username = ref('John Doe')
 const location = ref('')
