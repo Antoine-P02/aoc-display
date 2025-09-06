@@ -2,12 +2,12 @@ import { isTokenValid, CODES } from './functions.mjs'
 
 export default async function handler(req, res) {
   const token = req.query.token
-  const username = await isTokenValid(token)
-  if (username in CODES) {
-    console.log('Token validation error:', CODES[username])
-    return res.status(400).send(CODES[username])
+  const user = await isTokenValid(token)
+  if (user in CODES) {
+    console.log('Token validation error:', CODES[user])
+    return res.status(400).send(CODES[user])
   }
-  res.status(200).send(username)
+  res.status(200).send(user)
   // const token = req.query.token;
   // try {
   //     const isValid = await isTokenValid(token);

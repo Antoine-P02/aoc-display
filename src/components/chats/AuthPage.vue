@@ -1,5 +1,7 @@
 <script setup>
 import { ref } from 'vue'
+import { userStoreData } from '../user/User'
+
 const base_url = import.meta.env.VITE_BASE_URL
 
 const mode = ref('login') // 'login' or 'register'
@@ -57,11 +59,19 @@ function submitForm() {
   }
 }
 
+function loadUserData(user) {
+  userStoreData.user = user
+}
+
+
 async function loginUser() {
   console.log('Logging in with:', username.value, password.value)
   const response = await fetch(`${base_url}/api/loginUser?username=${username.value}&password=${password.value}`)
   if (response.ok) {
-    sessionStorage.setItem('token', await response.text())
+    const user = await response.json()
+    console.log('Auth from login', user)
+    loadUserData(user)
+    sessionStorage.setItem('token', user.token)
     emit('login-success')
   }
   else {
@@ -74,8 +84,10 @@ async function registerShit() {
   const response = await fetch(`${base_url}/api/registerUser?username=${username.value}&password=${password.value}`)
   
   if (response.ok) {
-    const infos = await response.json()
-    sessionStorage.setItem('token', infos.token)
+    const user = await response.json()
+    console.log('Auth from register', user)
+    loadUserData(user)
+    sessionStorage.setItem('token', user.token)
     emit('register-success')
   }
   else {

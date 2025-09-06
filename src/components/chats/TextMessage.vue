@@ -9,7 +9,6 @@ const props = defineProps({
   },
   deleteMessage: Function,
   editMessage: Function,
-  debug: String,
   isCurrentUser: Boolean
 })
 

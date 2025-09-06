@@ -52,7 +52,7 @@ export async function getAocCollection(collectionName) {
 export async function getLastMessages(limit, skip) {
   const collection = await getAocCollection('messages')
   const messages = await collection
-    .find({}, { projection: { _id: 1, value: 1, images: 1, isEdited: 1, timestamp: 1, ip: 1 } })
+    .find({}, { projection: { _id: 1, value: 1, images: 1, user: 1, isEdited: 1, timestamp: 1, ip: 1 } })
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)
@@ -104,7 +104,16 @@ export async function authCheck(userName, password) {
     console.log('User password incorrect')
     return CODES['User password incorrect']
   }
-  return user.token
+
+  const reconstructedUser = {
+    username: user.username,
+    token: user.token,
+    description: user.description,
+    image: user.image,
+    location: user.location,
+    tz: user.tz
+  }
+  return reconstructedUser
 }
 
 export async function isTokenValid(token) {
@@ -114,7 +123,15 @@ export async function isTokenValid(token) {
   if (!user) {
     return CODES['Invalid token']
   }
-  return user.username
+  const reconstructedUser = {
+    username: user.username,
+    token: user.token,
+    description: user.description,
+    image: user.image,
+    location: user.location,
+    tz: user.tz
+  }
+  return reconstructedUser
 }
 
 export async function registerUser(userName, password) {
@@ -138,8 +155,17 @@ export async function registerUser(userName, password) {
 
   const collection = await getAocCollection('users')
   await collection.insertOne(user)
+
+  const reconstructedUser = {
+    username: user.username,
+    token: user.token,
+    description: user.description,
+    image: user.image,
+    location: user.location,
+    tz: user.tz
+  }
   console.log('about to return user:', user)
-  return user
+  return reconstructedUser
 }
 
 function hashPassword(password) {

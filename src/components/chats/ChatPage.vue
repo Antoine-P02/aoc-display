@@ -1,20 +1,17 @@
 <script setup>
 import { onMounted, ref, nextTick } from 'vue'
-import { RouterLink } from 'vue-router'
 import TextMessage from './TextMessage.vue'
-import AuthPage from './AuthPage.vue'
 import pingSound from '@/assets/ping.wav'
 import ConversationHeader from './ConversationHeader.vue'
-import UserTab from '../user/UserTab.vue'
 import DeleteButtonOver from '../reusables/DeleteButtonOver.vue'
+import { userStoreData } from '../user/User'
 
 const props = defineProps({
-  member: {
-    type: Object,
-    default: () => ({})
-  }
+  currentUser: {}
 })
+
 const emit = defineEmits(['back-to-aoc'])
+console.log("currentUser prop in ChatPage:", props.currentUser)
 
 const messageList = ref([])
 const newMessage = ref('')
@@ -28,79 +25,9 @@ const authLoading = ref(true)
 const chatContainer = ref(null)
 const status = ref('bot')
 const showScrollToBottom = ref(false)
-getAuthStatus()
 
 const NUMBER_OF_MESSAGES = 15
-
 const base_url = import.meta.env.VITE_BASE_URL
-
-async function getAuthStatus() {
-  const token = sessionStorage.getItem('token')
-  if (token) {
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/isTokenValid?token=${token}`)
-    if (response.ok) {
-      isLoggedIn.value = true
-      authLoading.value = false
-    } 
-    else {
-      errorWarning.value = await response.text()
-    }
-  }
-  authLoading.value = false
-}
-
-async function sendMessage(message) {
-  console.log('Sending message:', message)
-
-  const messageData = {
-    value: message,
-    images: imageList.value,
-    timestamp: null,
-    isEdited: null,
-    ip: ip.value
-  }
-  console.log('Message data:', messageData, imageList.value)
-  await fetch(`${base_url}/api/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(messageData)
-  })
-  messageData.timestamp = new Date()
-  messageList.value.push(messageData)
-  imageList.value = []
-}
-
-async function getLastMessages(limit, skip) {
-  const data = await fetch(`${base_url}/api/getLastMessages?limit=${limit}&skip=${skip}`)
-  const text = await data.text()
-  const jsonData = JSON.parse(text)
-
-  console.log('GETTER', jsonData.messages)
-  if (skip === 0) {
-    messageList.value = jsonData.messages
-    ip.value = jsonData.ip
-  } 
-  else {
-    return jsonData.messages
-  }
-  await nextTick()
-  scrollToBottom()
-}
-
-async function refreshMessages() {
-  const data = await fetch(`${base_url}/api/getLastMessages?limit=${1}`)
-  const text = await data.text()
-  const jsonData = JSON.parse(text)
-  const lastMessage = jsonData.messages
-
-  if (!isEqual(lastMessage[0], messageList.value[messageList.value.length - 1])) {
-    console.log('NEW TEXT FOUND REFRESHING', lastMessage)
-    const audio = new Audio(pingSound)
-    audio.play()
-    getLastMessages(NUMBER_OF_MESSAGES, 0)
-    messageList.value.push(lastMessage[0])
-  }
-}
 
 function isEqual(message1, message2) {
   return message1._id === message2._id && message1.value === message2.value && message1.timestamp === message2.timestamp
@@ -136,6 +63,14 @@ function handlePaste(event) {
   }
 }
 
+function confirmSend(event) {
+  const textContent = event.target.value.trim()
+  if (textContent) {
+    sendMessage(textContent)
+    newMessage.value = ''
+  }
+}
+
 async function handleScroll() {
   if (chatContainer.value.scrollTop < chatContainer.value.scrollHeight - chatContainer.value.clientHeight - 100) {
     showScrollToBottom.value = true
@@ -160,12 +95,60 @@ async function handleScroll() {
   }
 }
 
-function confirmSend(event) {
-  const textContent = event.target.value.trim()
-  if (textContent) {
-    sendMessage(textContent)
-    newMessage.value = ''
+async function getLastMessages(limit, skip) {
+  const data = await fetch(`${base_url}/api/getLastMessages?limit=${limit}&skip=${skip}`)
+  const text = await data.text()
+  const jsonData = JSON.parse(text)
+
+  console.log('GETTER', jsonData.messages)
+  if (skip === 0) {
+    messageList.value = jsonData.messages
+    ip.value = jsonData.ip
   }
+  else {
+    return jsonData.messages
+  }
+  await nextTick()
+  scrollToBottom()
+}
+
+async function refreshMessages() {
+  const data = await fetch(`${base_url}/api/getLastMessages?limit=${1}`)
+  const text = await data.text()
+  const jsonData = JSON.parse(text)
+  const lastMessage = jsonData.messages
+
+  if (!isEqual(lastMessage[0], messageList.value[messageList.value.length - 1])) {
+    console.log('NEW TEXT FOUND REFRESHING', lastMessage)
+    const audio = new Audio(pingSound)
+    audio.play()
+    getLastMessages(NUMBER_OF_MESSAGES, 0)
+    messageList.value.push(lastMessage[0])
+  }
+}
+
+async function sendMessage(message) {
+  console.log('Sending message:', message)
+
+  const messageData = {
+    value: message,
+    images: imageList.value,
+    timestamp: null,
+    user: userStoreData.user.username,
+    isEdited: null,
+    ip: ip.value
+  }
+  console.log('Message data:', messageData, imageList.value)
+  await fetch(`${base_url}/api/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(messageData)
+  })
+  messageData.timestamp = new Date()
+  messageList.value.push(messageData)
+  await nextTick()
+  scrollToBottom()
+  imageList.value = []
 }
 
 async function deleteMessage(messageString) {
@@ -188,58 +171,39 @@ async function editMessage(messageId, newMessage) {
 </script>
 
 <template>
-  <div class="grid grid-cols-3 gap-4 mt-0 h-[6vh] m-6 mb-10">
-    <div class="flex justify-center rounded-lg h-full w-full gap-x-4">
-      <button @click="$emit('back-to-aoc')" class="px-4 py-2 bg-dark-green text-white rounded-l-md hover:bg-dark-green-hover transition-colors">
-        <i class="fas fa-arrow-left" />
-        Back to Home
-      </button>
-      <button v-if="isLoggedIn" @click="getLastMessages(NUMBER_OF_MESSAGES, 0)" class="px-4 py-2 bg-dark-blue text-white rounded-r-md">
-        <i class="fas fa-sync" />
-      </button>
-    </div>
-
-    <div class="text-center text-white flex items-center justify-center">Future logo and name</div>
-
-    <RouterLink to="/user" class="text-white">
-      <UserTab v-if="isLoggedIn" @logout="isLoggedIn = false" />
-    </RouterLink>
-  </div>
-  <div v-if="authLoading" class="loading-screen">
-    <AuthPage @login-success="isLoggedIn = true" @register-success="isLoggedIn = true" :errorWarning="errorWarning" />
-  </div>
-  <div v-else>
-    <div v-if="isLoggedIn" class="flex flex-col w-full gap-y-[2vh]">
-      <div ref="chatContainer" class="h-[80vh] overflow-auto no-scrollbar" @scroll="handleScroll">
-        <div v-if="status == 'top'" class="text-center text-white">
-          <i class="fas fa-spinner fa-pulse" />
-          <span>Loading previous messages...</span>
-        </div>
-        <div v-if="status == 'beginning'" class="text-center">
-          <ConversationHeader />
-        </div>
-
-        <div class="flex flex-col space-y-2">
-          <TextMessage v-for="message in messageList" :key="message.value + message.timestamp" :message="message" :deleteMessage="deleteMessage" :editMessage="editMessage" :isCurrentUser="message.ip === ip" />
-        </div>
+  <div class="flex flex-col w-full gap-y-[2vh]">
+    <div ref="chatContainer" class="h-[80vh] overflow-auto no-scrollbar" @scroll="handleScroll">
+      <div v-if="status == 'top'" class="text-center text-white">
+        <i class="fas fa-spinner fa-pulse" />
+        <span>Loading previous messages...</span>
       </div>
-      <div class="h-[5vh] relative">
-        <input v-model="newMessage" type="text" maxlength="200" @paste="handlePaste" @keyup.enter="confirmSend" placeholder="Type your message..." class="border rounded-md p-3 w-2/3 mx-auto block bg-light-green" />
+      <div v-if="status == 'beginning'" class="text-center">
+        <ConversationHeader />
+      </div>
 
-        <button v-if="showScrollToBottom" @click="scrollToBottom" class="absolute left-[10%] top-0 px-3.75 py-3 bg-dark-blue text-white rounded-full shadow-lg hover:bg-dark-blue-hover transition">
-          <i class="fas fa-arrow-down fa-bounce" />
-        </button>
-
-        <div class="flex flex-wrap justify-start w-2/3 mx-auto">
-          <div v-for="image in imageList" class="w-20 h-20 m-4 group relative">
-            <img :src="image" alt="Pasted Image" class="absolute top-0 left-0 w-full h-full rounded-md group-hover:blur-xs group-hover:opacity-50 transition duration-300" />
-            <DeleteButtonOver @click="imageList = imageList.filter(i => i !== image)" />
-          </div>
-        </div>
+      <div class="flex flex-col space-y-2">
+        <TextMessage v-for="message in messageList" :key="message.value + message.timestamp" :message="message"
+          :deleteMessage="deleteMessage" :editMessage="editMessage"
+          :isCurrentUser="message.user !== 'AntoineP02'" />
+        <!-- :isCurrentUser="message.user === userStoreData.user.username" /> -->
       </div>
     </div>
-    <div v-else>
-      <AuthPage @login-success="isLoggedIn = true" @register-success="isLoggedIn = true" :errorWarning="errorWarning" />
+    <div class="h-[5vh] relative">
+      <input v-model="newMessage" type="text" maxlength="200" @paste="handlePaste" @keyup.enter="confirmSend"
+        placeholder="Type your message..." class="border rounded-md p-3 w-2/3 mx-auto block bg-light-green" />
+
+      <button v-if="showScrollToBottom" @click="scrollToBottom"
+        class="absolute left-[10%] top-0 px-3.75 py-3 bg-dark-blue text-white rounded-full shadow-lg hover:bg-dark-blue-hover transition">
+        <i class="fas fa-arrow-down fa-bounce" />
+      </button>
+
+      <div class="flex flex-wrap justify-start w-2/3 mx-auto">
+        <div v-for="image in imageList" class="w-20 h-20 m-4 group relative">
+          <img :src="image" alt="Pasted Image"
+            class="absolute top-0 left-0 w-full h-full rounded-md group-hover:blur-xs group-hover:opacity-50 transition duration-300" />
+          <DeleteButtonOver @click="imageList = imageList.filter(i => i !== image)" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
