@@ -28,7 +28,12 @@ const props = defineProps({
 </script>
 
 <template>
-  <button v-if="props.cond" :class="[`absolute ${props.top ? 'top' : 'bottom'}-${props.offset} ${props.right ? 'right' : 'left'}-${props.offset} bg-red hover:bg-red-hover flex items-center justify-center`]" :style="`border-radius: ${props.rounding}%; width: ${props.size * 4}px; height: ${props.size * 4}px;`" @click="props.onClick" :title="props.title">
+  <button v-if="props.cond" 
+    :class="[`absolute ${props.top ? 'top' : 'bottom'}-${props.offset} ${props.right ? 'right' : 'left'}-${props.offset} bg-red hover:bg-red-hover flex items-center justify-center`]" 
+    :style="`border-radius: ${props.rounding}%; width: ${props.size * 4}px; height: ${props.size * 4}px;`"
+    @click="props.onClick" 
+    :title="props.title"
+  >
     <i class="fas fa-times text-white" :style="`font-size: ${props.size * 1.75}px`" />
   </button>
 </template>

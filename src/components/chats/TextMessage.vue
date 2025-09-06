@@ -110,8 +110,7 @@ function setPopupImage(image) {
     <!-- Img popup -->
     <div v-if="fullImage" @click="setPopupImage(null)" class="fixed inset-0 bg-black/90 flex justify-center items-center z-50">
       <img :src="fullImage" @click.stop class="max-w-full max-h-full rounded-md" />
-      <CancelButton :onClick="removePicture" :cond="pictureUrl" title="Remove Picture" offset="4" :size="8" :rounding="90" />
-      <CancelButton :onClick="() => (fullImage = null)" size="10" />
+      <CancelButton :onClick="() => (fullImage = null)" size="10" offset="4" />
     </div>
   </div>
 </template>
