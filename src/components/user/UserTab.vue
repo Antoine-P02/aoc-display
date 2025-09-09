@@ -9,9 +9,9 @@ console.log('UserTab user:', user)
 
 function logout(event) {
   event.preventDefault()
-  const token = sessionStorage.getItem('token')
+  const token = localStorage.getItem('token')
   if (token) {
-    sessionStorage.removeItem('token')
+    localStorage.removeItem('token')
   }
   emit('logout')
 }

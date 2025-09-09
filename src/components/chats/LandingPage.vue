@@ -22,7 +22,7 @@ const authLoading = ref(true)
 getAuthStatus()
 
 async function getAuthStatus() {
-    const token = sessionStorage.getItem('token')
+    const token = localStorage.getItem('token')
     if (token) {
         const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/isTokenValid?token=${token}`)
         if (response.ok) {
