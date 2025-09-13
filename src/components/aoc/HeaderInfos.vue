@@ -49,9 +49,11 @@ const emit = defineEmits(['update:mode'])
     </div>
 
     <div class="flex gap-2 mt-4 mb-10">
-      <button :class="['px-4 py-2.5 rounded-lg font-semibold transition-all whitespace-nowrap', props.mode === 'progress' ? 'bg-dark-green text-white shadow-md' : 'bg-gray text-light-gray hover:bg-gray-hover']" @click="emit('update:mode', 'progress')">Complete Progress</button>
+      <button :class="['px-4 py-2.5 rounded-lg font-semibold transition-all whitespace-nowrap', props.mode === 'aoc' ? 'bg-dark-green text-white shadow-md' : 'bg-gray text-light-gray hover:bg-gray-hover']" @click="emit('update:mode', 'aoc')">Complete Progress</button>
       <button :class="['px-4 py-2.5 rounded-lg font-semibold transition-all whitespace-nowrap', props.mode === 'feed' ? 'bg-dark-green text-white shadow-md' : 'bg-gray text-light-gray hover:bg-gray-hover']" @click="emit('update:mode', 'feed')">Daily Feed</button>
       <button :class="['px-4 py-2.5 rounded-lg font-semibold transition-all whitespace-nowrap', props.mode === 'chat' ? 'bg-dark-green text-white shadow-md' : 'bg-gray text-light-gray hover:bg-gray-hover']" @click="emit('update:mode', 'chat')">Chat</button>
+      <button :class="['px-4 py-2.5 rounded-lg font-semibold transition-all whitespace-nowrap', props.mode === 'game' ? 'bg-dark-green text-white shadow-md' : 'bg-gray text-light-gray hover:bg-gray-hover']" @click="emit('update:mode', 'game')">Breakout</button>
+      
     </div>
   </div>
 </template>

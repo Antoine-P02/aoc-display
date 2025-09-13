@@ -1,24 +1,24 @@
 <script setup>
 import { ref } from 'vue'
 import { userStoreData } from '../user/User'
+import ReallyImportantComponent from '../reusables/ReallyImportantComponent.vue'
 
 const base_url = import.meta.env.VITE_BASE_URL
-
-const mode = ref('login') // 'login' or 'register'
-const username = ref('')
-const password = ref('')
-const confirmPassword = ref('')
-
-const emit = defineEmits(['login-success', 'register-success'])
 
 const props = defineProps({
   errorWarning: String
 })
 
+const emit = defineEmits(['login-success', 'register-success'])
+const mode = ref('login') // 'login' or 'register'
+const username = ref('')
+const password = ref('')
+const confirmPassword = ref('')
 const warningText = ref(props.errorWarning)
 const showPassword = ref(false)
+const switchReallyImportant = ref(false)
 
-// Toggle between login and register
+
 function toggleMode() {
   mode.value = mode.value === 'login' ? 'register' : 'login'
   username.value = ''
@@ -26,7 +26,6 @@ function toggleMode() {
   confirmPassword.value = ''
 }
 
-// Submit handler
 function submitForm() {
   if (mode.value === 'register' && password.value !== confirmPassword.value) {
     warningText.value = "Passwords do not match";
@@ -63,7 +62,6 @@ function loadUserData(user) {
   userStoreData.user = user
 }
 
-
 async function loginUser() {
   console.log('Logging in with:', username.value, password.value)
   const response = await fetch(`${base_url}/api/loginUser?username=${username.value}&password=${password.value}`)
@@ -71,7 +69,7 @@ async function loginUser() {
     const user = await response.json()
     console.log('Auth from login', user)
     loadUserData(user)
-    sessionStorage.setItem('token', user.token)
+    localStorage.setItem('token', user.token)
     emit('login-success')
   }
   else {
@@ -87,7 +85,7 @@ async function registerShit() {
     const user = await response.json()
     console.log('Auth from register', user)
     loadUserData(user)
-    sessionStorage.setItem('token', user.token)
+    localStorage.setItem('token', user.token)
     emit('register-success')
   }
   else {
@@ -138,18 +136,28 @@ async function registerShit() {
         </button>
         </input>
       </div>
-      <p class="text-red text-center">{{ warningText }}</p>
-      <button type="submit" class="w-full bg-dark-blue text-white py-2 rounded hover:bg-dark-blue-hover transition-colors">
+
+      <div class="text-center">
+        <span class="text-red text-center">{{ warningText }}</span>
+        <span 
+          @click="switchReallyImportant = true"
+          class="block text-center text-dark-blue font-medium hover:underline px-2">
+          Forgot your password ?
+        </span>
+      </div>
+
+      <button type="submit"
+        class="w-full bg-dark-blue text-white py-2 rounded hover:bg-dark-blue-hover transition-colors">
         {{ mode === 'login' ? 'Login' : 'Register' }}
       </button>
     </form>
 
-    <p class="text-center mt-4 text-gray-hover">
+    <div class="text-center mt-4 text-gray-hover">
       <span v-if="mode === 'login'">Don't have an account?</span>
       <span v-else>Already have an account?</span>
-      <button @click="toggleMode" class="text-dark-blue font-medium hover:underline ml-1">
+      <button @click="toggleMode" class="text-dark-blue font-medium hover:underline px-2">
         {{ mode === 'login' ? 'Register' : 'Login' }}
       </button>
-    </p>
-  </div>
+    </div>  </div>
+  <ReallyImportantComponent :switchReallyImportant="switchReallyImportant" @ReallyImportantFeatureEnded="switchReallyImportant = false" />
 </template>

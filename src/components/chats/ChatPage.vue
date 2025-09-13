@@ -5,29 +5,61 @@ import pingSound from '@/assets/ping.wav'
 import ConversationHeader from './ConversationHeader.vue'
 import DeleteButtonOver from '../reusables/DeleteButtonOver.vue'
 import { userStoreData } from '../user/User'
+import CancelButton from '../reusables/CancelButton.vue'
+import EmojiPicker from 'vue3-emoji-picker'
+import wallpaper from '@/assets/wallpaper.jpg'
 
 const props = defineProps({
   currentUser: {}
 })
 
 const emit = defineEmits(['back-to-aoc'])
-console.log("currentUser prop in ChatPage:", props.currentUser)
+const users = ref([])
 
 const messageList = ref([])
 const newMessage = ref('')
 const imageList = ref([])
+const responseMessage = ref(null)
 
 const ip = ref('0.0')
-const isLoggedIn = ref(false)
-const errorWarning = ref('')
-
-const authLoading = ref(true)
 const chatContainer = ref(null)
 const status = ref('bot')
 const showScrollToBottom = ref(false)
+const showEmojiPicker = ref(false)
+const nbRows = ref(1)
+
+let tmpBgColor = "#101828"
 
 const NUMBER_OF_MESSAGES = 15
 const base_url = import.meta.env.VITE_BASE_URL
+
+function handleKeyBinding(event) {
+  if (newMessage.value === ''){
+    nbRows.value = 1
+  }
+
+  if (event.key === 'Enter' && (event.ctrlKey || event.shiftKey)) {
+    console.log("ctrl + enter detected");
+    event.preventDefault()
+    newMessage.value += '\n'
+    nbRows.value += 1
+  }
+  else if (event.key === 'Enter') {
+    event.preventDefault()
+    confirmSend(event)
+  }
+}
+
+function onSelectEmoji(emoji) {
+  console.log('Selected emoji:', emoji)
+  newMessage.value += emoji.i
+}
+
+async function updateResponseMessage(message) {
+  responseMessage.value = null
+  await nextTick()                //Force rerender
+  responseMessage.value = message
+}
 
 function isEqual(message1, message2) {
   return message1._id === message2._id && message1.value === message2.value && message1.timestamp === message2.timestamp
@@ -36,6 +68,14 @@ function isEqual(message1, message2) {
 onMounted(() => {
   getLastMessages(NUMBER_OF_MESSAGES, 0)
   setInterval(refreshMessages, 30000) // Refresh messages every 30s to see if new messages have arrived
+
+  if (Math.random() < 0.1) {
+    const body = document.body;
+    tmpBgColor = "#fae8e9"
+    body.style.backgroundImage = `url(${wallpaper})`;
+    body.style.backgroundRepeat = 'no-repeat';
+    body.style.backgroundSize = 'cover';
+  }
 })
 
 function scrollToBottom() {
@@ -51,6 +91,11 @@ function handlePaste(event) {
   for (let i = 0; i < items.length; i++) {
     const item = items[i]
     if (items[i].type.indexOf('image') !== -1) {
+
+      if (imageList.value.length >= 4) {
+        alert('WHY THE FUCK DO YOU NEED THIS AMOUNT OF IMAGES ??\n NO !')
+        return
+      }
       const file = item.getAsFile()
       const reader = new FileReader()
       reader.onload = function (e) {
@@ -68,6 +113,7 @@ function confirmSend(event) {
   if (textContent) {
     sendMessage(textContent)
     newMessage.value = ''
+    nbRows.value = 1
   }
 }
 
@@ -99,8 +145,8 @@ async function getLastMessages(limit, skip) {
   const data = await fetch(`${base_url}/api/getLastMessages?limit=${limit}&skip=${skip}`)
   const text = await data.text()
   const jsonData = JSON.parse(text)
+  users.value = jsonData.users
 
-  console.log('GETTER', jsonData.messages)
   if (skip === 0) {
     messageList.value = jsonData.messages
     ip.value = jsonData.ip
@@ -139,16 +185,27 @@ async function sendMessage(message) {
     ip: ip.value
   }
   console.log('Message data:', messageData, imageList.value)
-  await fetch(`${base_url}/api/sendMessage`, {
+  const response = await fetch(`${base_url}/api/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(messageData)
   })
+  console.log('Response:', response)
+  if (!response.ok) {
+    const text = await response.text()
+    console.log("text", text);
+    const jsonData = JSON.parse(text)
+    console.log("jsonData", jsonData);
+
+    console.log('Error response:', status)
+    messageData.error = status.error || 'Unknown error'
+  }
   messageData.timestamp = new Date()
   messageList.value.push(messageData)
   await nextTick()
   scrollToBottom()
   imageList.value = []
+  
 }
 
 async function deleteMessage(messageString) {
@@ -172,7 +229,11 @@ async function editMessage(messageId, newMessage) {
 
 <template>
   <div class="flex flex-col w-full gap-y-[2vh]">
+
+    <div :class="`h-20 bg-gradient-to-b from-[${tmpBgColor}] to-[${tmpBgColor}]/5 -my-[2vh] -mb-20 z-10`" />
+
     <div ref="chatContainer" class="h-[80vh] overflow-auto no-scrollbar" @scroll="handleScroll">
+    <!-- <div ref="chatContainer" :class="['overflow-auto no-scrollbar', responseMessage ? 'h-[60vh]' : 'h-[80vh]']" @scroll="handleScroll"> -->
       <div v-if="status == 'top'" class="text-center text-white">
         <i class="fas fa-spinner fa-pulse" />
         <span>Loading previous messages...</span>
@@ -182,26 +243,58 @@ async function editMessage(messageId, newMessage) {
       </div>
 
       <div class="flex flex-col space-y-2">
-        <TextMessage v-for="message in messageList" :key="message.value + message.timestamp" :message="message"
-          :deleteMessage="deleteMessage" :editMessage="editMessage"
-          :isCurrentUser="message.user !== 'AntoineP02'" />
-        <!-- :isCurrentUser="message.user === userStoreData.user.username" /> -->
+        <TextMessage v-for="message in messageList" @responseMessageTransfer="updateResponseMessage"
+          :key="message.timestamp" :message="message" :user="users[message.user] || {}" :deleteMessage="deleteMessage"
+          :editMessage="editMessage" :isCurrentUser="message.user === userStoreData.user.username" />
       </div>
     </div>
-    <div class="h-[5vh] relative">
-      <input v-model="newMessage" type="text" maxlength="200" @paste="handlePaste" @keyup.enter="confirmSend"
-        placeholder="Type your message..." class="border rounded-md p-3 w-2/3 mx-auto block bg-light-green" />
+
+    <div class="flex flex-row items-center justify-center m-2">
 
       <button v-if="showScrollToBottom" @click="scrollToBottom"
-        class="absolute left-[10%] top-0 px-3.75 py-3 bg-dark-blue text-white rounded-full shadow-lg hover:bg-dark-blue-hover transition">
+        class="px-3.5 py-3 self-end -ml-21.75 bg-dark-blue text-white rounded-full shadow-lg hover:bg-dark-blue-hover transition">
         <i class="fas fa-arrow-down fa-bounce" />
       </button>
 
-      <div class="flex flex-wrap justify-start w-2/3 mx-auto">
-        <div v-for="image in imageList" class="w-20 h-20 m-4 group relative">
-          <img :src="image" alt="Pasted Image"
-            class="absolute top-0 left-0 w-full h-full rounded-md group-hover:blur-xs group-hover:opacity-50 transition duration-300" />
-          <DeleteButtonOver @click="imageList = imageList.filter(i => i !== image)" />
+
+
+      <div class="h-full rounded-xl w-2/3 bg-blue/0 relative" :class="showScrollToBottom ? 'ml-10' : ''">
+
+        <!-- <div v-if="responseMessage" class="text-center h-[15vh] overflow-y-auto no-scrollbar text-xs">
+          <CancelButton @click="responseMessage = null" size="10" />
+          <TextMessage :message="responseMessage" class="min-w-[90%] max-h-40 overflow-y-auto no-scrollbar"
+            :user="users[responseMessage.user] || {}" :deleteMessage="deleteMessage" :editMessage="editMessage"
+            :isCurrentUser="true" />
+        </div> -->
+
+        <div class="flex items-center gap-4">
+          <textarea 
+            v-model="newMessage"
+            type="text"
+            :rows="nbRows"
+            maxlength="500"
+            @paste="handlePaste"
+            @keydown="handleKeyBinding"
+            placeholder="Type your message..."
+            class="border rounded-md w-full p-3 mx-auto block bg-light-green"
+          />
+          <span @click="showEmojiPicker = !showEmojiPicker" class="p-3 text-center rounded bg-light-green">
+            <EmojiPicker @click.stop v-if="showEmojiPicker" class="absolute bottom-16 right-4" :native="true"
+              @select="onSelectEmoji" disable-skin-tones="false"
+              :disabled-groups="['animals_nature', 'food_drink', 'activities', 'travel_places', 'objects', 'symbols', 'flags']" />
+            <span class=" rounded-full text-xl">
+              🖕
+            </span>
+
+          </span>
+        </div>
+
+        <div class="flex flex-wrap justify-start w-2/3 mx-auto">
+          <div v-for="image in imageList" class="w-20 h-20 m-4 group relative">
+            <img :src="image" alt="Pasted Image"
+              class="absolute top-0 left-0 w-full h-full rounded-md group-hover:blur-xs group-hover:opacity-50 transition duration-300" />
+            <DeleteButtonOver @click="imageList = imageList.filter(i => i !== image)" />
+          </div>
         </div>
       </div>
     </div>

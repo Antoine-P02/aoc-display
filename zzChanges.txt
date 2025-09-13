@@ -1,0 +1,15 @@
+Stop reading commit messages Amanda you're cheating
+
+- Limit amount of images
+- Better layout for multiple images in a text
+- Carousel image preview
+- Forget my password feature
+- Fix cancel button every fucking where
+- Fuzzy finder with basic route options
+- Now support link in texts
+- Emoji Picker
+
+
+========== To do ========================
+- Still fucking scrollbar on 24" display
+- Answer UI and backend

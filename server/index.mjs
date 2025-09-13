@@ -3,7 +3,7 @@ import https from 'https'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import { client } from '../api/functions.mjs'
-import { CODES, closeConnection, getLastMessages, sendMessage, deleteMessage, editMessage, authCheck, registerUser, isTokenValid } from '../api/functions.mjs'
+import { CODES, closeConnection, getLastMessages, sendMessage, deleteMessage, editMessage, authCheck, registerUser, updateUser, isTokenValid } from '../api/functions.mjs'
 const app = express()
 const PORT = 3001
 
@@ -87,9 +87,10 @@ app.get('/api/getMessages', async (req, res) => {
 app.get('/api/getLastMessages', async (req, res) => {
   const limit = parseInt(req.query.limit)
   const skip = parseInt(req.query.skip)
-  const messages = await getLastMessages(limit, skip)
+  const {messages, userList} = await getLastMessages(limit, skip)
   res.send({
     messages: messages.reverse(),
+    users: userList,
     ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress
   })
 })
@@ -101,11 +102,11 @@ app.post('/api/sendMessage', async (req, res) => {
   try {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
     await sendMessage(message, ip)
-    res.status(200).json({ success: true })
+    res.status(200).send({ success: true })
   } 
   catch (error) {
     console.error('api/sendMessage error:', error)
-    res.status(500).json({ error: error.message || 'Internal error' })
+    res.status(500).send('test error 9974')
   }
 })
 
@@ -156,8 +157,18 @@ app.get('/api/registerUser', async (req, res) => {
     console.log('Registration error:', CODES[registration])
     return res.status(400).send(CODES[registration])
   }
-
   res.status(201).send(registration)
+})
+
+app.post('/api/updateUser', async (req, res) => {
+  const modifiedUser = req.body
+  console.log('Updating user:', modifiedUser)
+  const updateResult = await updateUser(modifiedUser)
+  if (updateResult in CODES) {
+    console.log('Update User error:', CODES[updateResult])
+    return res.status(400).send(CODES[updateResult])
+  }
+  res.status(200).send(updateResult)
 })
 
 app.get('/api/isTokenValid', async (req, res) => {

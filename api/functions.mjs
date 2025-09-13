@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
+import generateColors from './Auxiliary.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -28,7 +29,9 @@ export const CODES = {
   21002: 'Invalid token',
   'Invalid token': 21002,
   21003: 'User already exists',
-  'User already exists': 21003
+  'User already exists': 21003,
+  21004: 'User update failed',
+  'User update failed': 21004
 }
 
 export async function closeConnection() {
@@ -57,7 +60,28 @@ export async function getLastMessages(limit, skip) {
     .skip(skip)
     .limit(limit)
     .toArray()
-  return messages
+
+    const userNames = []
+    for (const message of messages) {
+      if ( !userNames.includes(message.user) ) {
+        userNames.push(message.user)
+      }
+    }
+    const userList = await getUserList(userNames)
+
+  return { messages, userList }
+}
+
+export async function getUserList(userNames) {
+  const collection = await getAocCollection('users')
+  const users = await collection.find({ username: { $in: userNames } }, { projection: { _id: 0, username: 1, description: 1, image: 1, location: 1, tz: 1 } }).toArray()
+  const userMap = {}
+  const colors = generateColors(users.length)
+  for (const user of users) {
+    userMap[user.username] = {...user, color: colors.pop()}
+  }
+  console.log('userMap:', userMap)
+  return userMap
 }
 
 export async function sendMessage(message, ip) {
@@ -123,7 +147,9 @@ export async function isTokenValid(token) {
   if (!user) {
     return CODES['Invalid token']
   }
+  console.log('Token is valid for user:', user)
   const reconstructedUser = {
+    _id: user._id,
     username: user.username,
     token: user.token,
     description: user.description,
@@ -147,6 +173,8 @@ export async function registerUser(userName, password) {
     //password: hashPassword(password)
     password: password,
     token: generateToken(userName + password),
+    created: new Date(),
+    lastModified: null,
     description: '',
     image: null,
     location: '',
@@ -159,6 +187,8 @@ export async function registerUser(userName, password) {
   const reconstructedUser = {
     username: user.username,
     token: user.token,
+    created: user.created,
+    lastModified: user.lastModified,
     description: user.description,
     image: user.image,
     location: user.location,
@@ -166,6 +196,28 @@ export async function registerUser(userName, password) {
   }
   console.log('about to return user:', user)
   return reconstructedUser
+}
+
+export async function updateUser(modifiedUser) {
+  console.log('Updating user:', modifiedUser)
+  const collection = await getAocCollection('users')
+  const filter = { _id: new ObjectId(modifiedUser._id) }
+  const update = {
+    $set: {
+      username: modifiedUser.username,
+      description: modifiedUser.description,
+      image: modifiedUser.image,
+      location: modifiedUser.location,
+      tz: modifiedUser.tz,
+      lastModified: new Date()
+    }
+  }
+  try {
+    await collection.updateOne(filter, update)
+  } 
+  catch (error) {
+    return CODES['User update failed']
+  }
 }
 
 function hashPassword(password) {
