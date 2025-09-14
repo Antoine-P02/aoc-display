@@ -13,3 +13,33 @@ Stop reading commit messages Amanda you're cheating
 ========== To do ========================
 - Still fucking scrollbar on 24" display
 - Answer UI and backend
+- Fix sound popping under wrong conditions
+- Change password
+- websocket
+- texts creating dick detector
+
+const props = defineProps({
+  previousText: {},
+  message: {},
+  nextText: {},
+  user: {},
+  responseMessageTransfer: Function,
+  deleteMessage: Function,
+  editMessage: Function,
+  isCurrentUser: Boolean
+})
+
+const dickShape = isDickShape()
+
+function isDickShape() {
+  if (props.previousText && props.nextText) {
+    const prevLength = props.previousText.value.length
+    const currLength = props.message.value.length
+    const nextLength = props.nextText.value.length
+
+    if (prevLength < currLength && currLength < nextLength) {
+      return true
+    }
+  }
+  return false
+}

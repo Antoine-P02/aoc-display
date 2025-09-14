@@ -3,10 +3,7 @@ import { ref } from 'vue'
 import ImgCarousel from '../reusables/ImgCarousel.vue'
 
 const props = defineProps({
-  message: {
-    type: Object,
-    required: true
-  },
+  message: {},
   user: {},
   responseMessageTransfer: Function,
   deleteMessage: Function,

@@ -8,10 +8,7 @@ import { userStoreData } from '../user/User'
 import CancelButton from '../reusables/CancelButton.vue'
 import EmojiPicker from 'vue3-emoji-picker'
 import wallpaper from '@/assets/wallpaper.jpg'
-
-const props = defineProps({
-  currentUser: {}
-})
+import AppHeader from '../reusables/AppHeader.vue'
 
 const emit = defineEmits(['back-to-aoc'])
 const users = ref([])
@@ -227,13 +224,16 @@ async function editMessage(messageId, newMessage) {
 }
 </script>
 
+
 <template>
-  <div class="flex flex-col w-full gap-y-[2vh]">
+  <div class="flex flex-col h-full w-full gap-4 ">
 
-    <div :class="`h-20 bg-gradient-to-b from-[${tmpBgColor}] to-[${tmpBgColor}]/5 -my-[2vh] -mb-20 z-10`" />
+    <AppHeader />
 
-    <div ref="chatContainer" class="h-[80vh] overflow-auto no-scrollbar" @scroll="handleScroll">
+    <!-- <div :class="`h-20 bg-gradient-to-b from-[${tmpBgColor}] to-[${tmpBgColor}]/5 -my-[2vh] -mb-20 z-10`" /> -->
     <!-- <div ref="chatContainer" :class="['overflow-auto no-scrollbar', responseMessage ? 'h-[60vh]' : 'h-[80vh]']" @scroll="handleScroll"> -->
+
+    <div ref="chatContainer" class="flex-1 overflow-y-auto no-scrollbar" @scroll="handleScroll">
       <div v-if="status == 'top'" class="text-center text-white">
         <i class="fas fa-spinner fa-pulse" />
         <span>Loading previous messages...</span>
@@ -243,13 +243,20 @@ async function editMessage(messageId, newMessage) {
       </div>
 
       <div class="flex flex-col space-y-2">
-        <TextMessage v-for="message in messageList" @responseMessageTransfer="updateResponseMessage"
-          :key="message.timestamp" :message="message" :user="users[message.user] || {}" :deleteMessage="deleteMessage"
-          :editMessage="editMessage" :isCurrentUser="message.user === userStoreData.user.username" />
+        <TextMessage 
+          v-for="message in messageList"
+          @responseMessageTransfer="updateResponseMessage"
+          :key="message.timestamp"
+          :message="message"
+          :user="users[message.user] || {}"
+          :deleteMessage="deleteMessage"
+          :editMessage="editMessage"
+          :isCurrentUser="message.user === userStoreData.user.username"
+          />
       </div>
     </div>
 
-    <div class="flex flex-row items-center justify-center m-2">
+    <div class="flex-shrink-0 h-[5vh] flex flex-row items-center justify-center m-2">
 
       <button v-if="showScrollToBottom" @click="scrollToBottom"
         class="px-3.5 py-3 self-end -ml-21.75 bg-dark-blue text-white rounded-full shadow-lg hover:bg-dark-blue-hover transition">
@@ -260,24 +267,17 @@ async function editMessage(messageId, newMessage) {
 
       <div class="h-full rounded-xl w-2/3 bg-blue/0 relative" :class="showScrollToBottom ? 'ml-10' : ''">
 
-        <!-- <div v-if="responseMessage" class="text-center h-[15vh] overflow-y-auto no-scrollbar text-xs">
+        <div v-if="responseMessage" class="text-center h-[15vh] overflow-y-auto no-scrollbar text-xs">
           <CancelButton @click="responseMessage = null" size="10" />
           <TextMessage :message="responseMessage" class="min-w-[90%] max-h-40 overflow-y-auto no-scrollbar"
             :user="users[responseMessage.user] || {}" :deleteMessage="deleteMessage" :editMessage="editMessage"
             :isCurrentUser="true" />
-        </div> -->
+        </div>
 
         <div class="flex items-center gap-4">
-          <textarea 
-            v-model="newMessage"
-            type="text"
-            :rows="nbRows"
-            maxlength="500"
-            @paste="handlePaste"
-            @keydown="handleKeyBinding"
-            placeholder="Type your message..."
-            class="border rounded-md w-full p-3 mx-auto block bg-light-green"
-          />
+          <textarea v-model="newMessage" type="text" :rows="nbRows" maxlength="500" @paste="handlePaste"
+            @keydown="handleKeyBinding" placeholder="Type your message..."
+            class="border rounded-md w-full p-3 mx-auto block bg-light-green" />
           <span @click="showEmojiPicker = !showEmojiPicker" class="p-3 text-center rounded bg-light-green">
             <EmojiPicker @click.stop v-if="showEmojiPicker" class="absolute bottom-16 right-4" :native="true"
               @select="onSelectEmoji" disable-skin-tones="false"

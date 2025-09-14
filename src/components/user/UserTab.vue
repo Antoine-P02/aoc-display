@@ -1,6 +1,7 @@
 <script setup>
 import placeholder from '@/assets/profile.png'
 import { userStoreData } from '../user/User'
+import Loader from '../reusables/Loader.vue'
 
 const emit = defineEmits(['logout'])
 
@@ -17,7 +18,8 @@ function logout(event) {
 </script>
 
 <template>
-  <div class="bg-green h-full w-full items-center gap-4 rounded-lg p-2">
+  <Loader v-if="!user" />
+  <div v-else class="bg-green h-full w-full items-center gap-4 rounded-lg p-2">
     <div class="grid grid-cols-4 gap-x-4">
       <img :src="user.image || placeholder" alt="Profile Picture" class=" w-16 h-16 col-span-1 rounded-full object-cover" />
       <div class="col-span-3">
