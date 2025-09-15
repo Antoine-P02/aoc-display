@@ -6,8 +6,6 @@ import Loader from '../reusables/Loader.vue'
 import { userStoreData } from './User'
 
 const user = userStoreData.user
-console.log('User data:', user)
-console.log("tyest", user._id);
 
 const username = ref(user.username || 'Michel BRÉSIL')
 const location = ref(user.location || '')
@@ -62,8 +60,7 @@ async function saveProfile() {
     image: pictureUrl.value,
     tz: ""
   }
-  console.log('Updated user:', updatedUser)
-  console.log("dbug images",  pictureUrl.value)
+  
   const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/updateUser`, {
     method: 'POST',
     headers: {

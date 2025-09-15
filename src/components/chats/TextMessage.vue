@@ -11,8 +11,6 @@ const props = defineProps({
   isCurrentUser: Boolean
 })
 
-console.log("Hi this is a new text", props.message)
-
 const emit = defineEmits(['responseMessageTransfer'])
 const hover = ref(false)
 const showCarousel = ref(false)
@@ -41,13 +39,11 @@ function formatDate(ts) {
 }
 
 function deleteMessage() {
-  console.log('Deleting message:', messageText.value)
   props.deleteMessage(messageText.value)
   //messageText.value = 'Removed'
 }
 
 function editMessage() {
-  console.log('Editing message:', props.message, 'to:', editedText.value)
   const messageId = props.message._id
   const newMessage = {
     ...props.message,
@@ -75,23 +71,33 @@ function cancelEdit() {
 </script>
 
 <template>
+  <div v-if="props.message.replyTo" class="-mb-6">
+    <span class="-mt-8">
+      {{ props.message.user }} replied to {{ props.message.replyTo.user }} :
+    </span>
+    <div class="opacity-50">
+      <TextMessage :message="props.message.replyTo" :user="props.user" :isCurrentUser="props.message.replyTo.user === props.user.username" />
+    </div>
+  </div>
+
   <div 
     @mouseenter="hover = true"
-    @mouseleave="hover = false"
-    :style= "{ backgroundColor: isCurrentUser ? '' : props.user.color }"
+     @mouseleave="hover = false"
+    :style="{ backgroundColor: isCurrentUser ? '' : props.user.color }"
     class="w-fit max-w-3/7 my-3 mx-1 rounded-3xl p-4"
     :class="{ 'rounded-br-none ml-auto bg-blue': isCurrentUser, 'rounded-bl-none mr-auto' : !isCurrentUser}"
   >
     <div class="flex justify-between items-center text-center gap-x-2">
       <div class="flex items-center gap-x-2">
-        <img v-if="props.user && props.user.image" :src="props.user.image" class="w-10 h-10 rounded-full object-cover" />
+        <img v-if="props.user && props.user.image" :src="props.user.image"
+          class="w-10 h-10 rounded-full object-cover" />
         <div v-else class="w-6 h-6 rounded-full bg-gray">
           <span class="text-white text-xs flex items-center justify-center w-full h-full">
             <i class="fas fa-user" />
           </span>
         </div>
 
-        <span :class="hover ? '' : 'mr-6'"> 
+        <span :class="hover ? '' : 'mr-6'">
           {{ props.message.user }}
         </span>
         <span v-if="hover" @click="emit('responseMessageTransfer', props.message)">
@@ -113,9 +119,7 @@ function cancelEdit() {
     </div>
 
     <div class="grid grid-cols-1 justify-self-end gap-4">
-      <img v-for="image in message.images"
-        :src="image"
-        @click="showCarousel = message.images.indexOf(image)+1"
+      <img v-for="image in message.images" :src="image" @click="showCarousel = message.images.indexOf(image)+1"
         class="w-auto h-auto max-w-[250px] mx-auto rounded-md" />
     </div>
 
@@ -143,6 +147,7 @@ function cancelEdit() {
     </div>
 
     <!-- Img popup -->
-    <ImgCarousel v-if="showCarousel" :images="props.message.images" @close="showCarousel = false" :startingIndex="showCarousel" />
+    <ImgCarousel v-if="showCarousel" :images="props.message.images" @close="showCarousel = false"
+      :startingIndex="showCarousel" />
   </div>
 </template>

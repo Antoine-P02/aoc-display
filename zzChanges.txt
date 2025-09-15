@@ -8,14 +8,15 @@ Stop reading commit messages Amanda you're cheating
 - Fuzzy finder with basic route options
 - Now support link in texts
 - Emoji Picker
+- Fix sound popping under wrong conditions
 
 
 ========== To do ========================
 - Still fucking scrollbar on 24" display
 - Answer UI and backend
-- Fix sound popping under wrong conditions
 - Change password
 - websocket
+- on reply icon redirect to replied text in convo
 - texts creating dick detector
 
 const props = defineProps({

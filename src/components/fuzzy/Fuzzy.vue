@@ -35,7 +35,6 @@ function action(item){
 }
 
 function bindings(event) {
-    console.log("key pressed", event.key);
     if (event.key === "Escape") {
         quit();
     }

@@ -3,7 +3,6 @@ import { editMessage } from "./functions.mjs";
 export default async function handler(req, res) {
 	const messageId = req.body.messageId;
 	const newMessage = req.body.newMessage;
-	console.log("Editing message from:", messageId, "to:", newMessage);
 	try {
 		await editMessage(messageId, newMessage);
 		res.status(200).json({ success: true });

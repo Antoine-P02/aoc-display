@@ -45,8 +45,6 @@ function submitForm() {
     password: password.value
   }
 
-  console.log(mode.value, payload)
-
   if (mode.value === 'login') {
     loginUser(payload)
   } 
@@ -63,11 +61,9 @@ function loadUserData(user) {
 }
 
 async function loginUser() {
-  console.log('Logging in with:', username.value, password.value)
   const response = await fetch(`${base_url}/api/loginUser?username=${username.value}&password=${password.value}`)
   if (response.ok) {
     const user = await response.json()
-    console.log('Auth from login', user)
     loadUserData(user)
     localStorage.setItem('token', user.token)
     emit('login-success')
@@ -78,7 +74,6 @@ async function loginUser() {
 }
 
 async function registerShit() {
-  console.log('Registering with:', username.value, password.value)
   const response = await fetch(`${base_url}/api/registerUser?username=${username.value}&password=${password.value}`)
   
   if (response.ok) {

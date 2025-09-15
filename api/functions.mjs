@@ -55,7 +55,7 @@ export async function getAocCollection(collectionName) {
 export async function getLastMessages(limit, skip) {
   const collection = await getAocCollection('messages')
   const messages = await collection
-    .find({}, { projection: { _id: 1, value: 1, images: 1, user: 1, isEdited: 1, timestamp: 1, ip: 1 } })
+    .find({}, { projection: { _id: 1, value: 1, images: 1, user: 1, replyTo: 1, isEdited: 1, timestamp: 1, ip: 1 } })
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)
@@ -80,12 +80,11 @@ export async function getUserList(userNames) {
   for (const user of users) {
     userMap[user.username] = {...user, color: colors.pop()}
   }
-  console.log('userMap:', userMap)
+
   return userMap
 }
 
 export async function sendMessage(message, ip) {
-  console.log('sendMessage called with message:', message, 'and ip:', ip)
   const collection = await getAocCollection('messages')
   message.timestamp = new Date()
   message.ip = ip || message.ip
@@ -95,12 +94,9 @@ export async function sendMessage(message, ip) {
 export async function deleteMessage(message) {
   const collection = await getAocCollection('messages')
   await collection.deleteOne({ value: message })
-  console.log(`Message deleted: ${message}`)
 }
 
 export async function editMessage(oldMessageId, newMessage) {
-  console.log('Editing message with ID:', oldMessageId, newMessage)
-
   const collection = await getAocCollection('messages')
 
   await collection.updateOne(
@@ -118,14 +114,12 @@ export async function editMessage(oldMessageId, newMessage) {
 export async function authCheck(userName, password) {
   const collection = await getAocCollection('users')
   const user = await collection.findOne({ username: userName })
-  console.log('Verifying if user exists:', user)
+
   if (!user) {
-    console.log('User not found')
     return CODES['User not found']
   }
-  console.log('Verifying user password:', user.password)
+
   if (user.password !== password) {
-    console.log('User password incorrect')
     return CODES['User password incorrect']
   }
 
@@ -143,11 +137,11 @@ export async function authCheck(userName, password) {
 export async function isTokenValid(token) {
   const collection = await getAocCollection('users')
   const user = await collection.findOne({ token: token })
-  console.log('isTokenValid user:', user)
+
   if (!user) {
     return CODES['Invalid token']
   }
-  console.log('Token is valid for user:', user)
+
   const reconstructedUser = {
     _id: user._id,
     username: user.username,
@@ -162,9 +156,8 @@ export async function isTokenValid(token) {
 
 export async function registerUser(userName, password) {
   const loginCheck = await authCheck(userName, password)
-  console.log('registerUser loginCheck:', loginCheck)
+
   if (loginCheck !== CODES['User not found']) {
-    console.log('Register', CODES['User already exists'])
     return CODES['User already exists']
   }
 
@@ -194,12 +187,12 @@ export async function registerUser(userName, password) {
     location: user.location,
     tz: user.tz
   }
-  console.log('about to return user:', user)
+
   return reconstructedUser
 }
 
 export async function updateUser(modifiedUser) {
-  console.log('Updating user:', modifiedUser)
+
   const collection = await getAocCollection('users')
   const filter = { _id: new ObjectId(modifiedUser._id) }
   const update = {

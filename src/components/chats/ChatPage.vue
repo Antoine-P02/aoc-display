@@ -9,6 +9,10 @@ import CancelButton from '../reusables/CancelButton.vue'
 import EmojiPicker from 'vue3-emoji-picker'
 import wallpaper from '@/assets/wallpaper.jpg'
 import AppHeader from '../reusables/AppHeader.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const loading = ref(true)
 
 const emit = defineEmits(['back-to-aoc'])
 const users = ref([])
@@ -36,7 +40,6 @@ function handleKeyBinding(event) {
   }
 
   if (event.key === 'Enter' && (event.ctrlKey || event.shiftKey)) {
-    console.log("ctrl + enter detected");
     event.preventDefault()
     newMessage.value += '\n'
     nbRows.value += 1
@@ -48,7 +51,6 @@ function handleKeyBinding(event) {
 }
 
 function onSelectEmoji(emoji) {
-  console.log('Selected emoji:', emoji)
   newMessage.value += emoji.i
 }
 
@@ -63,8 +65,15 @@ function isEqual(message1, message2) {
 }
 
 onMounted(() => {
+  console.log("Auth Verification before accessing Chats");
+  if (!userStoreData.user) {
+    router.push('/login')
+    return
+  }
+  loading.value = false
+  
   getLastMessages(NUMBER_OF_MESSAGES, 0)
-  setInterval(refreshMessages, 30000) // Refresh messages every 30s to see if new messages have arrived
+  setInterval(refreshMessages, 10000) // Refresh messages every 10s to see if new messages have arrived
 
   if (Math.random() < 0.1) {
     const body = document.body;
@@ -115,25 +124,27 @@ function confirmSend(event) {
 }
 
 async function handleScroll() {
-  if (chatContainer.value.scrollTop < chatContainer.value.scrollHeight - chatContainer.value.clientHeight - 100) {
-    showScrollToBottom.value = true
-  } 
-  else {
-    showScrollToBottom.value = false
-  }
-
-  if (chatContainer.value.scrollTop === 0) {
-    const prevMaxScroll = chatContainer.value.scrollHeight
-    status.value = 'top'
-    console.log('request more')
-    const previousMessages = await getLastMessages(NUMBER_OF_MESSAGES, messageList.value.length)
-    if (previousMessages.length > 0) {
-      messageList.value = [...previousMessages, ...messageList.value]
-      chatContainer.value.scrollTop = chatContainer.value.scrollHeight - prevMaxScroll + 5
-      status.value = 'bot'
-    } 
+  if (chatContainer.value){
+    if (chatContainer.value.scrollTop < chatContainer.value.scrollHeight - chatContainer.value.clientHeight - 100) {
+      showScrollToBottom.value = true
+    }
     else {
-      status.value = 'beginning'
+      showScrollToBottom.value = false
+    }
+
+    if (chatContainer.value.scrollTop === 0) {
+      const prevMaxScroll = chatContainer.value.scrollHeight
+      status.value = 'top'
+
+      const previousMessages = await getLastMessages(NUMBER_OF_MESSAGES, messageList.value.length)
+      if (previousMessages.length > 0) {
+        messageList.value = [...previousMessages, ...messageList.value]
+        chatContainer.value.scrollTop = chatContainer.value.scrollHeight - prevMaxScroll + 5
+        status.value = 'bot'
+      }
+      else {
+        status.value = 'beginning'
+      }
     }
   }
 }
@@ -155,33 +166,49 @@ async function getLastMessages(limit, skip) {
   scrollToBottom()
 }
 
+function getTheirLastMessage(textList) {
+  for (let x = textList.length - 1; x >= 0; x--) {
+    if (textList[x].user !== userStoreData.user.username) {
+      return textList[x]
+    }
+  }
+  return null
+}
+
 async function refreshMessages() {
+  console.log("Smart Refresh !");
   const data = await fetch(`${base_url}/api/getLastMessages?limit=${1}`)
   const text = await data.text()
   const jsonData = JSON.parse(text)
   const lastMessage = jsonData.messages
 
   if (!isEqual(lastMessage[0], messageList.value[messageList.value.length - 1])) {
-    console.log('NEW TEXT FOUND REFRESHING', lastMessage)
-    const audio = new Audio(pingSound)
-    audio.play()
-    getLastMessages(NUMBER_OF_MESSAGES, 0)
-    messageList.value.push(lastMessage[0])
+    const prevTextList = messageList.value
+    await getLastMessages(NUMBER_OF_MESSAGES, 0)
+
+    if (!isEqual(getTheirLastMessage(prevTextList), getTheirLastMessage(messageList.value)) ) {
+      console.log('NEW TEXT FOUND REFRESHING', lastMessage)
+      const audio = new Audio(pingSound)
+      audio.play()
+    }
+    
   }
 }
 
 async function sendMessage(message) {
-  console.log('Sending message:', message)
 
   const messageData = {
     value: message,
     images: imageList.value,
     timestamp: null,
     user: userStoreData.user.username,
+    replyTo: responseMessage.value,
     isEdited: null,
     ip: ip.value
   }
-  console.log('Message data:', messageData, imageList.value)
+
+  responseMessage.value = null
+
   const response = await fetch(`${base_url}/api/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -242,7 +269,7 @@ async function editMessage(messageId, newMessage) {
         <ConversationHeader />
       </div>
 
-      <div class="flex flex-col space-y-2">
+      <div v-if="userStoreData.user" class="flex flex-col space-y-2">
         <TextMessage 
           v-for="message in messageList"
           @responseMessageTransfer="updateResponseMessage"

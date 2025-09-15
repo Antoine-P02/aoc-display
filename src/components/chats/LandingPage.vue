@@ -6,10 +6,7 @@ import AppHeader from '../reusables/AppHeader.vue'
 import { useRouter } from 'vue-router'
 import Loader from '../reusables/Loader.vue'
 
-console.log('Landing Page Loaded');
-
 const router = useRouter()
-
 const props = defineProps({
     member: {
         type: Object,
