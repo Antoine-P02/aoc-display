@@ -1,25 +1,26 @@
 <script setup>
-import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { nextTick, ref } from 'vue'
 import AuthPage from './AuthPage.vue'
-import UserTab from '../user/UserTab.vue'
 import { userStoreData } from '../user/User'
-import ChatPage from './ChatPage.vue'
-import PatchNotesPopup from '../reusables/PatchNotesPopup.vue'
+import AppHeader from '../reusables/AppHeader.vue'
+import { useRouter } from 'vue-router'
+import Loader from '../reusables/Loader.vue'
 
+const router = useRouter()
 const props = defineProps({
     member: {
         type: Object,
         default: () => ({})
     }
 })
-const emit = defineEmits(['back-to-aoc'])
-const isLoggedIn = ref(false)
-const errorWarning = ref('')
-const showPatchNotes = ref(false)
 
-const authLoading = ref(true)
+const errorWarning = ref('')
+const loading = ref(true)
 getAuthStatus()
+
+async function connect() {
+    router.push('/chat')
+}
 
 async function getAuthStatus() {
     const token = localStorage.getItem('token')
@@ -29,56 +30,28 @@ async function getAuthStatus() {
             const user = await response.json()
             console.log('Auth from token', user)
             userStoreData.user = user
-            isLoggedIn.value = true
-            authLoading.value = false
+            loading.value = false
+            connect()
         }
         else {
             errorWarning.value = await response.text()
         }
     }
-    authLoading.value = false
+    loading.value = false
 }
 
-function openPatchNotes() {
-    showPatchNotes.value = true
-}
-
-function closePatchNotes() {
-    showPatchNotes.value = false
-}
 </script>
 
 <template>
-    <div class="grid grid-cols-3 gap-4 mt-0 h-[6vh] m-6 mb-10">
-        <div class="flex justify-center rounded-lg h-full w-full gap-x-4">
-            <button @click="$emit('back-to-aoc')"
-                class="px-4 py-2 bg-dark-green text-white rounded-l-md hover:bg-dark-green-hover transition-colors">
-                <i class="fas fa-arrow-left" />
-                Back to Home
-            </button>            <!-- @click="getLastMessages(NUMBER_OF_MESSAGES, 0)" -->
-            <button v-if="isLoggedIn" @click="openPatchNotes" class="px-4 py-2 bg-dark-blue text-white rounded-r-md hover:bg-dark-blue-hover transition-colors">
-                <i class="fas fa-info-circle text-2xl" />
-            </button>
-        </div>
-
-        <div class="text-center text-white flex items-center justify-center">Future logo and name</div>
-
-        <RouterLink to="/user" class="text-white">
-            <UserTab v-if="isLoggedIn" @logout="isLoggedIn = false" />
-        </RouterLink>
-    </div>
-    <div v-if="authLoading" class="loading-screen">
-        <AuthPage @login-success="isLoggedIn = true" @register-success="isLoggedIn = true"
-            :errorWarning="errorWarning" />
+    <AppHeader />
+    <div v-if="loading" class="loading-screen">
+        <Loader />
     </div>
     <div v-else>
-        <ChatPage v-if="isLoggedIn && userStoreData.user != null" :currentUser="userStoreData.user" />
-        <div v-else>
-            <AuthPage @login-success="isLoggedIn = true" @register-success="isLoggedIn = true"
-                :errorWarning="errorWarning" />
-        </div>
+        <AuthPage @login-success="connect" @register-success="connect" :errorWarning="errorWarning" />
+        <!-- <ChatPage v-if="isLoggedIn && userStoreData.user != null" :currentUser="userStoreData.user" /> -->
+        <!-- <LayoutDemo v-if="isLoggedIn && userStoreData.user != null" /> -->
     </div>
 
-    <!-- Patch Notes Popup -->
-    <PatchNotesPopup :isVisible="showPatchNotes" @close="closePatchNotes" />
+    
 </template>

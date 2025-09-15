@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, defineEmits, ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
 const props = defineProps({
   isVisible: {
@@ -28,8 +28,8 @@ async function fetchCommits() {
     const response = await fetch('https://api.github.com/repos/Antoine-P02/aoc-display/commits?per_page=20')
     if (!response.ok) {
       throw new Error(`GitHub API error: ${response.status}`)
-    }      const data = await response.json()
-      console.log(data)
+    }
+    const data = await response.json()
       //   .filter(commit => commit.commit.message.startsWith('Update'))
       commits.value = data.map(commit => ({
         sha: commit.sha.substring(0, 7),

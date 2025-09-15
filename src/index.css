@@ -10,10 +10,8 @@
   --color-gray-hover: #4a5565; /* gray-600 */
   --color-dark-gray: #1e2939; /* gray-800 */
 
-  --color-light-green: #dcfce7;
-  --color-light-green-hover: #000000;
+  --color-light-green: #A7F3D0; /* green-200 */
   --color-green: #05df72;
-  --color-green-hover: #000000;
   --color-dark-green: #00a63e;
   --color-dark-green-hover: #008236;
 
@@ -30,8 +28,6 @@
 
   --color-red: #e7000b;
   --color-red-hover: #c10007;
-
-  --color-grey: #000000;
 }
 
 @font-face {

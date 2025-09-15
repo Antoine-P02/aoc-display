@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
+import generateColors from './Auxiliary.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -28,7 +29,9 @@ export const CODES = {
   21002: 'Invalid token',
   'Invalid token': 21002,
   21003: 'User already exists',
-  'User already exists': 21003
+  'User already exists': 21003,
+  21004: 'User update failed',
+  'User update failed': 21004
 }
 
 export async function closeConnection() {
@@ -52,16 +55,36 @@ export async function getAocCollection(collectionName) {
 export async function getLastMessages(limit, skip) {
   const collection = await getAocCollection('messages')
   const messages = await collection
-    .find({}, { projection: { _id: 1, value: 1, images: 1, user: 1, isEdited: 1, timestamp: 1, ip: 1 } })
+    .find({}, { projection: { _id: 1, value: 1, images: 1, user: 1, replyTo: 1, isEdited: 1, isPoll: 1, timestamp: 1, ip: 1 } })
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)
     .toArray()
-  return messages
+
+    const userNames = []
+    for (const message of messages) {
+      if ( !userNames.includes(message.user) ) {
+        userNames.push(message.user)
+      }
+    }
+    const userList = await getUserList(userNames)
+
+  return { messages, userList }
+}
+
+export async function getUserList(userNames) {
+  const collection = await getAocCollection('users')
+  const users = await collection.find({ username: { $in: userNames } }, { projection: { _id: 0, username: 1, description: 1, image: 1, location: 1, tz: 1 } }).toArray()
+  const userMap = {}
+  const colors = generateColors(users.length)
+  for (const user of users) {
+    userMap[user.username] = {...user, color: colors.pop()}
+  }
+
+  return userMap
 }
 
 export async function sendMessage(message, ip) {
-  console.log('sendMessage called with message:', message, 'and ip:', ip)
   const collection = await getAocCollection('messages')
   message.timestamp = new Date()
   message.ip = ip || message.ip
@@ -71,12 +94,9 @@ export async function sendMessage(message, ip) {
 export async function deleteMessage(message) {
   const collection = await getAocCollection('messages')
   await collection.deleteOne({ value: message })
-  console.log(`Message deleted: ${message}`)
 }
 
 export async function editMessage(oldMessageId, newMessage) {
-  console.log('Editing message with ID:', oldMessageId, newMessage)
-
   const collection = await getAocCollection('messages')
 
   await collection.updateOne(
@@ -94,14 +114,12 @@ export async function editMessage(oldMessageId, newMessage) {
 export async function authCheck(userName, password) {
   const collection = await getAocCollection('users')
   const user = await collection.findOne({ username: userName })
-  console.log('Verifying if user exists:', user)
+
   if (!user) {
-    console.log('User not found')
     return CODES['User not found']
   }
-  console.log('Verifying user password:', user.password)
+
   if (user.password !== password) {
-    console.log('User password incorrect')
     return CODES['User password incorrect']
   }
 
@@ -119,11 +137,13 @@ export async function authCheck(userName, password) {
 export async function isTokenValid(token) {
   const collection = await getAocCollection('users')
   const user = await collection.findOne({ token: token })
-  console.log('isTokenValid user:', user)
+
   if (!user) {
     return CODES['Invalid token']
   }
+
   const reconstructedUser = {
+    _id: user._id,
     username: user.username,
     token: user.token,
     description: user.description,
@@ -136,9 +156,8 @@ export async function isTokenValid(token) {
 
 export async function registerUser(userName, password) {
   const loginCheck = await authCheck(userName, password)
-  console.log('registerUser loginCheck:', loginCheck)
+
   if (loginCheck !== CODES['User not found']) {
-    console.log('Register', CODES['User already exists'])
     return CODES['User already exists']
   }
 
@@ -147,6 +166,8 @@ export async function registerUser(userName, password) {
     //password: hashPassword(password)
     password: password,
     token: generateToken(userName + password),
+    created: new Date(),
+    lastModified: null,
     description: '',
     image: null,
     location: '',
@@ -159,13 +180,37 @@ export async function registerUser(userName, password) {
   const reconstructedUser = {
     username: user.username,
     token: user.token,
+    created: user.created,
+    lastModified: user.lastModified,
     description: user.description,
     image: user.image,
     location: user.location,
     tz: user.tz
   }
-  console.log('about to return user:', user)
+
   return reconstructedUser
+}
+
+export async function updateUser(modifiedUser) {
+
+  const collection = await getAocCollection('users')
+  const filter = { _id: new ObjectId(modifiedUser._id) }
+  const update = {
+    $set: {
+      username: modifiedUser.username,
+      description: modifiedUser.description,
+      image: modifiedUser.image,
+      location: modifiedUser.location,
+      tz: modifiedUser.tz,
+      lastModified: new Date()
+    }
+  }
+  try {
+    await collection.updateOne(filter, update)
+  } 
+  catch (error) {
+    return CODES['User update failed']
+  }
 }
 
 function hashPassword(password) {
@@ -174,4 +219,18 @@ function hashPassword(password) {
 
 function generateToken(input) {
   return crypto.createHash('sha256').update(input).digest('hex')
+}
+
+
+export async function updatePoll(messageId, votes){
+  const collection = await getAocCollection('messages')
+
+  await collection.updateOne(
+    { _id: new ObjectId(messageId) },
+    {
+      $set: {
+        'isPoll.options': votes
+      }
+    }
+  )
 }

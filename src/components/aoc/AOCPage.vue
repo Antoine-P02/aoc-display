@@ -3,8 +3,12 @@ import HeaderInfos from './HeaderInfos.vue'
 import Feed from './Feed.vue'
 import Completion from './Completion.vue'
 
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import LandingPage from '../chats/LandingPage.vue'
+
+const route = useRoute()
+const router = useRouter()
 
 const base_url = import.meta.env.VITE_BASE_URL
 
@@ -12,7 +16,36 @@ const loading = ref(true)
 const error = ref(null)
 const member = ref({})
 const days = Array.from({ length: 25 }, (_, i) => i + 1)
-const mode = ref('progress')
+const mode = ref('aoc')
+
+// Set mode based on current route
+const setModeFromRoute = () => {
+  if (route.path === '/feed') {
+    mode.value = 'feed'
+  } else if (route.path === '/chat') {
+    mode.value = 'chat'
+  } else {
+    mode.value = 'aoc'
+  }
+}
+
+watch(() => route.path, () => {
+  setModeFromRoute()
+}, { immediate: true })
+
+
+const handleModeUpdate = (newMode) => {
+  router.push(`/${newMode}`)
+  return
+  mode.value = newMode
+  if (newMode === 'feed') {
+    router.push('/feed')
+  } else if (newMode === 'chat') {
+    router.push('/chat')
+  } else {
+    router.push('/aoc')
+  }
+}
 
 onMounted(async () => {
   loading.value = true
@@ -23,7 +56,6 @@ onMounted(async () => {
     const response = await fetch(apiUrl)
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     const data = await response.json()
-    console.log('debug', data)
     // Only show the current user
     const id = data.owner_id
     member.value = data.members[id]
@@ -62,15 +94,15 @@ const feed = computed(() => {
 </script>
 
 <template>
-  <div v-if="mode === 'feed'">
-    <HeaderInfos :member="member" :loading="loading" :error="error" :mode="mode" @update:mode="mode = $event" />
+  <div v-if="mode === 'feed'" class="pb-10">
+    <HeaderInfos :member="member" :loading="loading" :error="error" :mode="mode" @update:mode="handleModeUpdate" />
     <Feed :feed="feed" />
   </div>
-  <div v-else-if="mode === 'progress'">
-    <HeaderInfos :member="member" :loading="loading" :error="error" :mode="mode" @update:mode="mode = $event" />
+  <div v-else-if="mode === 'aoc'" class="pb-10">
+    <HeaderInfos :member="member" :loading="loading" :error="error" :mode="mode" @update:mode="handleModeUpdate" />
     <Completion :days="days" :mode="mode" :member="member" />
   </div>
   <div v-else>
-    <LandingPage :member="member" @back-to-aoc="mode = 'progress'" />
+    <LandingPage :member="member" @back-to-aoc="handleModeUpdate('aoc')" />
   </div>
 </template>

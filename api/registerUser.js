@@ -3,11 +3,9 @@ import { registerUser, CODES } from './functions.mjs'
 export default async function handler(req, res) {
   const userName = req.query.username
   const password = req.query.password
-  console.log('Registering user:', userName, password)
 
   const registration = await registerUser(userName, password)
   if (registration in CODES) {
-    console.log('Registration error:', CODES[registration])
     return res.status(400).send(CODES[registration])
   }
 

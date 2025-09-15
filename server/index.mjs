@@ -3,7 +3,16 @@ import https from 'https'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import { client } from '../api/functions.mjs'
-import { CODES, closeConnection, getLastMessages, sendMessage, deleteMessage, editMessage, authCheck, registerUser, isTokenValid } from '../api/functions.mjs'
+import { 
+  CODES, 
+  closeConnection, 
+  getLastMessages, 
+  sendMessage, deleteMessage, editMessage, 
+  authCheck, registerUser, isTokenValid,
+  updateUser,
+  updatePoll
+} from '../api/functions.mjs'
+
 const app = express()
 const PORT = 3001
 
@@ -12,7 +21,7 @@ app.use(cors())
 app.use(bodyParser.json({ limit: '10mb' }))
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }))
 app.listen(PORT, () => {
-  console.log(`Backend server running on http://localhost:${PORT}`)
+  console.log(`Server listening on port ${PORT}`)
 })
 
 app.get('/api/close-db', async (req, res) => {
@@ -58,9 +67,7 @@ app.get('/api/aoc-user', (req, res) => {
 
 app.get('/api/getMessages', async (req, res) => {
   const limit = parseInt(req.query.limit)
-  console.log('hello from Local', req.query.limit)
-  console.log('Fetching messages with limit:', limit)
-  console.log('Client not connected, connecting...', client.topology?.isConnected())
+
   try {
     const limit = parseInt(req.query?.limit ?? '100', 10) || 100
     if (client.topology?.isConnected() !== true) {
@@ -87,25 +94,25 @@ app.get('/api/getMessages', async (req, res) => {
 app.get('/api/getLastMessages', async (req, res) => {
   const limit = parseInt(req.query.limit)
   const skip = parseInt(req.query.skip)
-  const messages = await getLastMessages(limit, skip)
+  const {messages, userList} = await getLastMessages(limit, skip)
   res.send({
     messages: messages.reverse(),
+    users: userList,
     ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress
   })
 })
 
 app.post('/api/sendMessage', async (req, res) => {
-  console.log('Received message:', req.body)
   const message = req.body;
-  console.log('Message:', message)
+
   try {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
     await sendMessage(message, ip)
-    res.status(200).json({ success: true })
+    res.status(200).send({ success: true })
   } 
   catch (error) {
     console.error('api/sendMessage error:', error)
-    res.status(500).json({ error: error.message || 'Internal error' })
+    res.status(500).send('test error 9974')
   }
 })
 
@@ -124,7 +131,7 @@ app.post('/api/deleteMessage', async (req, res) => {
 app.post('/api/editMessage', async (req, res) => {
   const messageId = req.body.messageId
   const newMessage = req.body.newMessage
-  console.log('Editing message from:', messageId, 'to:', newMessage)
+
   try {
     await editMessage(messageId, newMessage)
     res.status(200).json({ success: true })
@@ -140,7 +147,6 @@ app.get('/api/loginUser', async (req, res) => {
   const password = req.query.password
   const registration = await authCheck(userName, password)
   if (registration in CODES) {
-    console.log('Login error:', CODES[registration])
     return res.status(400).send(CODES[registration])
   }
   res.status(200).send(registration)
@@ -149,23 +155,44 @@ app.get('/api/loginUser', async (req, res) => {
 app.get('/api/registerUser', async (req, res) => {
   const userName = req.query.username
   const password = req.query.password
-  console.log('Registering user:', userName, password)
 
   const registration = await registerUser(userName, password)
   if (registration in CODES) {
-    console.log('Registration error:', CODES[registration])
     return res.status(400).send(CODES[registration])
   }
-
   res.status(201).send(registration)
+})
+
+app.post('/api/updateUser', async (req, res) => {
+  const modifiedUser = req.body
+  const updateResult = await updateUser(modifiedUser)
+  if (updateResult in CODES) {
+    return res.status(400).send(CODES[updateResult])
+  }
+  res.status(200).send(updateResult)
 })
 
 app.get('/api/isTokenValid', async (req, res) => {
   const token = req.query.token
   const user = await isTokenValid(token)
   if (user in CODES) {
-    console.log('Token validation error:', CODES[user])
     return res.status(400).send(CODES[user])
   }
   res.status(200).send(user)
+})
+
+app.post('/api/updatePoll', async (req, res) => {
+  console.log("updatePoll endpoint hit");
+  console.log(req.body);
+  const messageId = req.body.messageId
+  const votes = req.body.votes
+
+  try {
+    await updatePoll(messageId, votes)
+    res.status(200).json({ success: true })
+  }
+  catch (err) {
+    console.error('api/updatePoll error:', err)
+    res.status(500).json({ error: err.message || 'Internal error' })
+  }
 })

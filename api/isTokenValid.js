@@ -4,7 +4,6 @@ export default async function handler(req, res) {
   const token = req.query.token
   const user = await isTokenValid(token)
   if (user in CODES) {
-    console.log('Token validation error:', CODES[user])
     return res.status(400).send(CODES[user])
   }
   res.status(200).send(user)

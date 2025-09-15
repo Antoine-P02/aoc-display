@@ -5,7 +5,6 @@ export default async function handler(req, res) {
   const password = req.query.password
   const registration = await authCheck(userName, password)
   if (registration in CODES) {
-    console.log('Login error:', CODES[registration])
     return res.status(400).send(CODES[registration])
   }
   res.status(200).send(registration)

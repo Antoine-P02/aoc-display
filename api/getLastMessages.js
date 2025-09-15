@@ -4,9 +4,10 @@ export default async function handler(req, res) {
   try {
     const limit = parseInt(req.query.limit)
     const skip = parseInt(req.query.skip)
-    const messages = await getLastMessages(limit, skip)
+    const {messages, userList} = await getLastMessages(limit, skip)
     res.send({
       messages: messages.reverse(),
+      users: userList,
       ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress
     })
   } 

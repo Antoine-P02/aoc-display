@@ -1,6 +1,4 @@
 <script setup>
-import { defineProps } from 'vue'
-
 //const props = defineProps(['onClick', 'size'])
 
 const props = defineProps({
@@ -29,8 +27,8 @@ const props = defineProps({
 
 <template>
   <button v-if="props.cond" 
-    :class="[`absolute ${props.top ? 'top' : 'bottom'}-${props.offset} ${props.right ? 'right' : 'left'}-${props.offset} bg-red hover:bg-red-hover flex items-center justify-center`]" 
-    :style="`border-radius: ${props.rounding}%; width: ${props.size * 4}px; height: ${props.size * 4}px;`"
+    :class="[`absolute bg-red hover:bg-red-hover flex items-center justify-center`]" 
+    :style="`border-radius: ${props.rounding}%; width: ${props.size * 4}px; height: ${props.size * 4}px; ${props.top ? `top: ${props.offset}px;` : `bottom: ${props.offset}px;`} ${props.right ? `right: ${props.offset}px;` : `left: ${props.offset}px;`}`"
     @click="props.onClick" 
     :title="props.title"
   >
