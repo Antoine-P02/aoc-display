@@ -6,10 +6,12 @@ import ConversationHeader from './ConversationHeader.vue'
 import DeleteButtonOver from '../reusables/DeleteButtonOver.vue'
 import { userStoreData } from '../user/User'
 import CancelButton from '../reusables/CancelButton.vue'
-import EmojiPicker from 'vue3-emoji-picker'
 import wallpaper from '@/assets/wallpaper.jpg'
 import AppHeader from '../reusables/AppHeader.vue'
 import { useRouter } from 'vue-router'
+import EmojiMenu from '../reusables/EmojiMenu.vue'
+import OptionsPicker from '../reusables/OptionsPicker.vue'
+import Poll from '../reusables/Poll.vue'
 
 const router = useRouter()
 const loading = ref(true)
@@ -26,7 +28,6 @@ const ip = ref('0.0')
 const chatContainer = ref(null)
 const status = ref('bot')
 const showScrollToBottom = ref(false)
-const showEmojiPicker = ref(false)
 const nbRows = ref(1)
 
 let tmpBgColor = "#101828"
@@ -195,7 +196,7 @@ async function refreshMessages() {
   }
 }
 
-async function sendMessage(message) {
+async function sendMessage(message, isPoll = null) {
 
   const messageData = {
     value: message,
@@ -204,6 +205,7 @@ async function sendMessage(message) {
     user: userStoreData.user.username,
     replyTo: responseMessage.value,
     isEdited: null,
+    isPoll: isPoll,
     ip: ip.value
   }
 
@@ -270,16 +272,17 @@ async function editMessage(messageId, newMessage) {
       </div>
 
       <div v-if="userStoreData.user" class="flex flex-col space-y-2">
-        <TextMessage 
-          v-for="message in messageList"
-          @responseMessageTransfer="updateResponseMessage"
-          :key="message.timestamp"
-          :message="message"
-          :user="users[message.user] || {}"
-          :deleteMessage="deleteMessage"
-          :editMessage="editMessage"
-          :isCurrentUser="message.user === userStoreData.user.username"
-          />
+        <div v-for="message in messageList" :key="message.timestamp">
+          <Poll v-if="message.isPoll" :textId="message._id" :pollData="message.isPoll" :currentUsername="userStoreData.user.username" />
+          <TextMessage 
+            v-else
+            @responseMessageTransfer="updateResponseMessage"
+            :message="message"
+            :user="users[message.user] || {}"
+            :deleteMessage="deleteMessage"
+            :editMessage="editMessage"
+            :isCurrentUser="message.user === userStoreData.user.username" />
+        </div>
       </div>
     </div>
 
@@ -305,15 +308,8 @@ async function editMessage(messageId, newMessage) {
           <textarea v-model="newMessage" type="text" :rows="nbRows" maxlength="500" @paste="handlePaste"
             @keydown="handleKeyBinding" placeholder="Type your message..."
             class="border rounded-md w-full p-3 mx-auto block bg-light-green" />
-          <span @click="showEmojiPicker = !showEmojiPicker" class="p-3 text-center rounded bg-light-green">
-            <EmojiPicker @click.stop v-if="showEmojiPicker" class="absolute bottom-16 right-4" :native="true"
-              @select="onSelectEmoji" disable-skin-tones="false"
-              :disabled-groups="['animals_nature', 'food_drink', 'activities', 'travel_places', 'objects', 'symbols', 'flags']" />
-            <span class=" rounded-full text-xl">
-              🖕
-            </span>
-
-          </span>
+          <OptionsPicker :sendMessage="sendMessage" />
+          <EmojiMenu :onSelectEmoji="onSelectEmoji" />
         </div>
 
         <div class="flex flex-wrap justify-start w-2/3 mx-auto">

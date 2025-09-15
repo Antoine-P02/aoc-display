@@ -55,7 +55,7 @@ export async function getAocCollection(collectionName) {
 export async function getLastMessages(limit, skip) {
   const collection = await getAocCollection('messages')
   const messages = await collection
-    .find({}, { projection: { _id: 1, value: 1, images: 1, user: 1, replyTo: 1, isEdited: 1, timestamp: 1, ip: 1 } })
+    .find({}, { projection: { _id: 1, value: 1, images: 1, user: 1, replyTo: 1, isEdited: 1, isPoll: 1, timestamp: 1, ip: 1 } })
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limit)
@@ -219,4 +219,18 @@ function hashPassword(password) {
 
 function generateToken(input) {
   return crypto.createHash('sha256').update(input).digest('hex')
+}
+
+
+export async function updatePoll(messageId, votes){
+  const collection = await getAocCollection('messages')
+
+  await collection.updateOne(
+    { _id: new ObjectId(messageId) },
+    {
+      $set: {
+        'isPoll.options': votes
+      }
+    }
+  )
 }

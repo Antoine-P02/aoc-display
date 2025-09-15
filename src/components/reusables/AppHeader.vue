@@ -16,7 +16,7 @@ function handleLogout() {
 </script>
 
 <template>
-    <div class=" grid grid-cols-3 gap-4 mt-0 flex-shrink-0 h-[5vh] m-6 mb-10">
+    <div class=" grid grid-cols-3 gap-4 mt-0 flex-shrink-0 h-fit m-6 mb-10">
         <div class="flex justify-center rounded-lg h-full w-full gap-x-4">
             <button @click="$router.push('/aoc')"
                 class="px-4 py-2 bg-dark-green text-white rounded-l-md hover:bg-dark-green-hover transition-colors">

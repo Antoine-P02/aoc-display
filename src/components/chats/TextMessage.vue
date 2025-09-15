@@ -71,14 +71,14 @@ function cancelEdit() {
 </script>
 
 <template>
-  <div v-if="props.message.replyTo" class="-mb-6">
+  <!-- <div v-if="props.message.replyTo" class="-mb-6">
     <span class="-mt-8">
       {{ props.message.user }} replied to {{ props.message.replyTo.user }} :
     </span>
     <div class="opacity-50">
       <TextMessage :message="props.message.replyTo" :user="props.user" :isCurrentUser="props.message.replyTo.user === props.user.username" />
     </div>
-  </div>
+  </div> -->
 
   <div 
     @mouseenter="hover = true"

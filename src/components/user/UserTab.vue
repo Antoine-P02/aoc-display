@@ -1,5 +1,4 @@
 <script setup>
-import placeholder from '@/assets/profile.png'
 import { userStoreData } from '../user/User'
 import Loader from '../reusables/Loader.vue'
 
@@ -21,7 +20,11 @@ function logout(event) {
   <Loader v-if="!user" />
   <div v-else class="bg-green h-full w-full items-center gap-4 rounded-lg p-2">
     <div class="grid grid-cols-4 gap-x-4">
-      <img :src="user.image || placeholder" alt="Profile Picture" class=" w-16 h-16 col-span-1 rounded-full object-cover" />
+      <img v-if="user.image" :src="user.image" alt="Profile Picture" class=" w-16 h-16 col-span-1 rounded-full object-cover" />
+      <div v-else class="w-16 h-16 rounded-full bg-gradient-to-br from-light-gray to-light-yellow flex items-center justify-center text-gray text-2xl shadow-lg border-4 border-white">
+        <i class="fas fa-user fa-spin fa-md" />
+      </div>
+      
       <div class="col-span-3">
         <span class="text-white font-bold text-lg truncate block">{{ user.username }}</span>
         <div class="flex items-center justify-between gap-2">

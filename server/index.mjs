@@ -3,7 +3,16 @@ import https from 'https'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import { client } from '../api/functions.mjs'
-import { CODES, closeConnection, getLastMessages, sendMessage, deleteMessage, editMessage, authCheck, registerUser, updateUser, isTokenValid } from '../api/functions.mjs'
+import { 
+  CODES, 
+  closeConnection, 
+  getLastMessages, 
+  sendMessage, deleteMessage, editMessage, 
+  authCheck, registerUser, isTokenValid,
+  updateUser,
+  updatePoll
+} from '../api/functions.mjs'
+
 const app = express()
 const PORT = 3001
 
@@ -170,4 +179,20 @@ app.get('/api/isTokenValid', async (req, res) => {
     return res.status(400).send(CODES[user])
   }
   res.status(200).send(user)
+})
+
+app.post('/api/updatePoll', async (req, res) => {
+  console.log("updatePoll endpoint hit");
+  console.log(req.body);
+  const messageId = req.body.messageId
+  const votes = req.body.votes
+
+  try {
+    await updatePoll(messageId, votes)
+    res.status(200).json({ success: true })
+  }
+  catch (err) {
+    console.error('api/updatePoll error:', err)
+    res.status(500).json({ error: err.message || 'Internal error' })
+  }
 })
