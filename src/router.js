@@ -5,6 +5,7 @@ import AOCPage from './components/aoc/AOCPage.vue'
 import Breakout from './components/games/Breakout.vue'
 import LayoutDemo from './components/chats/LayoutDemo.vue'
 import ChatPage from './components/chats/ChatPage.vue'
+import NotFound from './components/NotFound.vue'
 
 const routes = [
   { path: '/', component: AOCPage },
@@ -14,7 +15,8 @@ const routes = [
   { path: '/chat', component: ChatPage },
   { path: '/user', component: UserPage },
   { path: '/game', component: Breakout },
-  { path: '/layout-demo', component: LayoutDemo }
+  { path: '/layout-demo', component: LayoutDemo },
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
 ]
 
 const router = createRouter({

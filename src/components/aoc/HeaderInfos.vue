@@ -52,7 +52,7 @@ const emit = defineEmits(['update:mode'])
       <button :class="['px-4 py-2.5 rounded-lg font-semibold transition-all whitespace-nowrap', props.mode === 'aoc' ? 'bg-dark-green text-white shadow-md' : 'bg-gray text-light-gray hover:bg-gray-hover']" @click="emit('update:mode', 'aoc')">Complete Progress</button>
       <button :class="['px-4 py-2.5 rounded-lg font-semibold transition-all whitespace-nowrap', props.mode === 'feed' ? 'bg-dark-green text-white shadow-md' : 'bg-gray text-light-gray hover:bg-gray-hover']" @click="emit('update:mode', 'feed')">Daily Feed</button>
       <button :class="['px-4 py-2.5 rounded-lg font-semibold transition-all whitespace-nowrap', props.mode === 'chat' ? 'bg-dark-green text-white shadow-md' : 'bg-gray text-light-gray hover:bg-gray-hover']" @click="emit('update:mode', 'login')">Chat</button>
-      <button :class="['px-4 py-2.5 rounded-lg font-semibold transition-all whitespace-nowrap', props.mode === 'game' ? 'bg-dark-green text-white shadow-md' : 'bg-gray text-light-gray hover:bg-gray-hover']" @click="emit('update:mode', 'game')">Breakout</button>
+      <!-- <button :class="['px-4 py-2.5 rounded-lg font-semibold transition-all whitespace-nowrap', props.mode === 'game' ? 'bg-dark-green text-white shadow-md' : 'bg-gray text-light-gray hover:bg-gray-hover']" @click="emit('update:mode', 'game')">Breakout</button> -->
       
     </div>
   </div>
