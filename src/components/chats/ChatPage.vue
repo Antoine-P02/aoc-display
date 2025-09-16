@@ -41,8 +41,9 @@ function handleKeyBinding(event) {
   }
 
   if (event.key === 'Enter' && (event.ctrlKey || event.shiftKey)) {
+    const currentPositionInString = event.target.selectionStart
     event.preventDefault()
-    newMessage.value += '\n'
+    message.value = newMessage.value.slice(0, currentPositionInString) + '\n' + newMessage.value.slice(currentPositionInString)
     nbRows.value += 1
   }
   else if (event.key === 'Enter') {
