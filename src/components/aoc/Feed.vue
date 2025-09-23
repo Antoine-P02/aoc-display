@@ -37,7 +37,7 @@ const hover = ref(Array(props.feed.length).fill(false))
 <template>
   <div class="w-full justify-center mx-auto bg-dark-gray rounded-lg shadow-sm border border-gray overflow-hidden">
     <div class="p-4 border-b border-gray">
-      <h3 class="font-semibold text-white">Completion History</h3>
+      <span class="font-semibold text-white">Completion History</span>
     </div>
 
     <div class="relative flex flex-col px-8 py-6">

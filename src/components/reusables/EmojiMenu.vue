@@ -21,7 +21,7 @@ defineProps({
             class="absolute bottom-16 right-4"
             :native="true"
             @select="onSelectEmoji"
-            :disable-skin-tones="false"
+            :disable-skin-tones="true"
             :disabled-groups="['animals_nature', 'food_drink', 'activities', 'travel_places', 'objects', 'symbols', 'flags']"
         />
         <span class=" rounded-full text-xl">

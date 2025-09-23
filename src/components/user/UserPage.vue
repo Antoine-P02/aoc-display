@@ -91,7 +91,7 @@ function goBack() {
 
 <template>
   <div
-    class="w-full h-screen bg-gradient-to-br from-light-yellow via-yellow-100 to-yellow flex flex-col items-center py-10">
+    class="w-full h-screen bg-gradient-to-br rounded-xl from-light-yellow via-yellow-100 to-yellow flex flex-col items-center py-10">
     <!-- Top Bar -->
     <div class="w-full max-w-5xl flex items-center justify-between mb-8 px-6">
       <button @click="goBack"
