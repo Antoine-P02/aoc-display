@@ -1,18 +1,42 @@
 Stop reading commit messages Amanda you're cheating
 
-- Limit amount of images
-- Better layout for multiple images in a text
-- Carousel image preview
-- Forget my password feature
+========== V3.1 ========================
+________> Fix
 - Fix cancel button every fucking where
-- Fuzzy finder with basic route options
-- Now support link in texts
-- Emoji Picker
 - Fix sound popping under wrong conditions
-- poll option
 
+________> New feature
+- profile can now be edited
+- Forget my password feature
+- Carousel image preview
+- Fuzzy finder with basic route options
+- Reply text preview
+- Now support link in texts
+- Now support newlines in texts
+- Secret random background
+- Emoji Picker
+- App new name !
+- options picker
+- poll maker
+- poll display w/ votes
+
+________> Changed Behavior
+- Better app gestion of pages (invisible feature)
+- Text color get fucked when too much scrolling ???
+- Limit amount of images
+
+________> QOL
+- better placeholder default profile pic
+- Better layout for multiple images in a text
+
+----------------------------------------------------------------
+
+========== V3.2 ========================
+________> Fix
+- Can now insert newline inside text and not only at the end
 
 ========== To do ========================
+- On paste scale text area to number of newlines
 - Still fucking scrollbar on 24" display
 - Finish Answer UI 
 - Change password

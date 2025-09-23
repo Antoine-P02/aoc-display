@@ -92,9 +92,9 @@ async function registerShit() {
 <template>
   <div class="max-w-md mx-auto mt-20 p-8 bg-white rounded-xl shadow-md">
 
-    <h2 class="text-2xl font-bold text-center mb-6">
+    <span class="text-2xl font-bold text-center mb-6">
       {{ mode === 'login' ? 'Login' : 'Register' }}
-    </h2>
+    </span>
 
     <form @submit.prevent="submitForm" class="space-y-4">
       <!-- Username -->

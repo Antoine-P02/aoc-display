@@ -41,8 +41,9 @@ function handleKeyBinding(event) {
   }
 
   if (event.key === 'Enter' && (event.ctrlKey || event.shiftKey)) {
+    const currentPositionInString = event.target.selectionStart
     event.preventDefault()
-    newMessage.value += '\n'
+    message.value = newMessage.value.slice(0, currentPositionInString) + '\n' + newMessage.value.slice(currentPositionInString)
     nbRows.value += 1
   }
   else if (event.key === 'Enter') {
@@ -273,7 +274,7 @@ async function editMessage(messageId, newMessage) {
 
       <div v-if="userStoreData.user" class="flex flex-col space-y-2">
         <div v-for="message in messageList" :key="message.timestamp">
-          <Poll v-if="message.isPoll" :textId="message._id" :pollData="message.isPoll" :currentUsername="userStoreData.user.username" />
+          <Poll v-if="message.isPoll" :textId="message._id" :pollData="message.isPoll" :pollAuthor="message.user" :currentUsername="userStoreData.user.username" />
           <TextMessage 
             v-else
             @responseMessageTransfer="updateResponseMessage"
